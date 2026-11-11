@@ -2,6 +2,12 @@ import "server-only";
 import { createHash, randomInt } from "crypto";
 import { db } from "./db";
 
+/** OTP login needs a real SMS or email provider on a live site (in development codes are shown on screen). */
+export const otpAvailable = () =>
+  process.env.NODE_ENV !== "production" ||
+  (process.env.SMS_PROVIDER || "console") !== "console" ||
+  (process.env.EMAIL_PROVIDER || "console") !== "console";
+
 const hash = (s: string) => createHash("sha256").update(s + (process.env.AUTH_SECRET || "")).digest("hex");
 
 /**

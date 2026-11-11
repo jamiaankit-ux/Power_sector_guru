@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { quote, type ItemType } from "@/lib/pricing";
 import { inr } from "@/lib/format";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
+import { paymentsEnabled } from "@/lib/payments";
 
 export const metadata = { title: "Checkout" };
 
@@ -33,8 +34,10 @@ export default async function Checkout({ searchParams }: { searchParams: Promise
         </div>
         <div className="muted mt-4 text-sm">Billing to <b>{user.name}</b> · {user.email ?? user.phone}</div>
       </div>
-      <CheckoutForm type={type} id={sp.id} initialCoupon={sp.coupon}
-        initial={{ amount: q.amount, discount: q.discount, tax: q.tax, total: q.total, coupon: q.coupon?.code ?? null, couponError: q.couponError ?? null }} />
+      {!paymentsEnabled() && q.total > 0 ? (
+        <div className="card p-6"><div className="font-semibold">Payments opening soon</div><p className="muted mt-2 text-sm">Online payment for this {type.toLowerCase()} is being set up. Free courses are available now.</p><Link href="/courses?price=free" className="btn-primary mt-4 w-full">Browse free courses</Link></div>
+      ) : <CheckoutForm type={type} id={sp.id} initialCoupon={sp.coupon}
+        initial={{ amount: q.amount, discount: q.discount, tax: q.tax, total: q.total, coupon: q.coupon?.code ?? null, couponError: q.couponError ?? null }} />}
     </div>
   );
 }

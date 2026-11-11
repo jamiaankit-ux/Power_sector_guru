@@ -13,6 +13,13 @@ export type CheckoutStart =
 
 export const provider = () => (process.env.PAYMENT_PROVIDER || "mock") as "mock" | "razorpay" | "stripe";
 
+/** Test payments let anyone unlock paid content, so they are off on a live site unless explicitly allowed. */
+export const testPaymentsAllowed = () =>
+  process.env.NODE_ENV !== "production" || process.env.ALLOW_TEST_PAYMENTS === "true";
+
+/** True when the site can take money (a real gateway is configured) or test payments are allowed. */
+export const paymentsEnabled = () => provider() !== "mock" || testPaymentsAllowed();
+
 export async function startCheckout(o: {
   orderId: string;
   total: number;

@@ -3,7 +3,7 @@ import { useActionState, useState } from "react";
 import { KeyRound, Mail, Smartphone } from "lucide-react";
 import { confirmOtp, loginWithPassword, requestOtp, type FormState } from "@/app/actions/auth";
 
-export function LoginForm({ next }: { next?: string }) {
+export function LoginForm({ next, otp = true }: { next?: string; otp?: boolean }) {
   const [mode, setMode] = useState<"password" | "otp">("password");
   const [pwState, pwAction, pwPending] = useActionState<FormState, FormData>(loginWithPassword, undefined);
   const [otpState, otpAction, otpPending] = useActionState<FormState, FormData>(requestOtp, undefined);
@@ -12,13 +12,13 @@ export function LoginForm({ next }: { next?: string }) {
 
   return (
     <div>
-      <div className="grid grid-cols-2 rounded-xl bg-slate-100 p-1 text-sm font-semibold dark:bg-slate-800">
+      {otp && <div className="grid grid-cols-2 rounded-xl bg-slate-100 p-1 text-sm font-semibold dark:bg-slate-800">
         {(["password", "otp"] as const).map((m) => (
           <button key={m} type="button" onClick={() => setMode(m)} className={`rounded-lg py-2 transition ${mode === m ? "bg-white shadow dark:bg-slate-950" : "text-slate-500"}`}>
             {m === "password" ? "Password" : "One-time code"}
           </button>
         ))}
-      </div>
+      </div>}
 
       {mode === "password" ? (
         <form action={pwAction} className="mt-6 space-y-4">

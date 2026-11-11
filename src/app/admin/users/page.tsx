@@ -6,7 +6,7 @@ export default async function Users({ searchParams }: { searchParams: Promise<{ 
   const { q } = await searchParams;
   const [users, courses] = await Promise.all([
     db.user.findMany({
-      where: q ? { OR: [{ name: { contains: q } }, { email: { contains: q } }, { phone: { contains: q } }, { organization: { contains: q } }] } : {},
+      where: q ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { email: { contains: q, mode: "insensitive" } }, { phone: { contains: q, mode: "insensitive" } }, { organization: { contains: q, mode: "insensitive" } }] } : {},
       include: { _count: { select: { enrollments: true, certificates: true } }, activity: { select: { seconds: true } } },
       orderBy: { createdAt: "desc" }, take: 100,
     }),

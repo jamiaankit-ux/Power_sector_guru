@@ -342,7 +342,24 @@ Power purchase cost is typically 70% to 80% of a discom's ARR.` },
   },
 ];
 
+async function ensureAdmin() {
+  if (await db.user.findFirst({ where: { role: "ADMIN" } })) return;
+  const email = (process.env.ADMIN_EMAIL || "admin@poweracademy.in").toLowerCase();
+  const phone = process.env.ADMIN_PHONE ? "+91" + process.env.ADMIN_PHONE.replace(/\D/g, "").slice(-10) : null;
+  const password = process.env.ADMIN_PASSWORD || "admin123";
+  if (!process.env.ADMIN_PASSWORD) console.warn("ADMIN_PASSWORD not set: using the demo password admin123. Change it before going live.");
+  await db.user.create({ data: { name: "Admin", email, phone, passwordHash: await bcrypt.hash(password, 10), role: "ADMIN" } });
+  console.log(`Admin account created: ${email}`);
+}
+
 async function main() {
+  const reset = process.argv.includes("--reset");
+  if (!reset && (await db.course.count()) > 0) {
+    // Never wipe a live database: only make sure an admin exists.
+    await ensureAdmin();
+    console.log("Database already has content; skipping demo seed (use --reset to wipe and reseed).");
+    return;
+  }
   await db.$transaction([
     db.comment.deleteMany(), db.note.deleteMany(), db.review.deleteMany(), db.certificate.deleteMany(),
     db.quizAttempt.deleteMany(), db.dailyActivity.deleteMany(), db.lessonProgress.deleteMany(),
@@ -410,8 +427,14 @@ async function main() {
     { code: "STUDENT20", description: "20% off for students", kind: "PERCENT", value: 20, maxRedemptions: 500 },
   ] });
 
-  const pw = await bcrypt.hash("admin123", 10);
-  await db.user.create({ data: { name: "Admin", email: "admin@poweracademy.in", phone: "+919999999999", passwordHash: pw, role: "ADMIN" } });
+  if (!process.env.ADMIN_PHONE && !process.env.ADMIN_PASSWORD) process.env.ADMIN_PHONE = "9999999999";
+  await ensureAdmin();
+  await db.announcement.create({ data: { title: "Welcome to Power Academy", body: "New course on Electricity Markets is live. Use code LAUNCH50 for 50% off this month." } });
+
+  if (process.env.SEED_DEMO_LEARNER === "false") {
+    console.log("Seeded courses, plans, bundles and codes (no demo learner).");
+    return;
+  }
   const learner = await db.user.create({ data: { name: "Riya Gupta", email: "learner@poweracademy.in", phone: "+919888888888",
     passwordHash: await bcrypt.hash("learner123", 10), organization: "State Load Despatch Centre", designation: "Assistant Engineer", city: "Jaipur" } });
 
@@ -430,7 +453,6 @@ async function main() {
     await db.dailyActivity.create({ data: { userId: learner.id, day: d, seconds: 900 + ((i * 731) % 2700) } });
   }
   await db.review.create({ data: { userId: learner.id, courseId: fundamentals, rating: 5, comment: "Clear explanations and the per-unit notes are excellent." } });
-  await db.announcement.create({ data: { title: "Welcome to Power Academy", body: "New course on Electricity Markets is live. Use code LAUNCH50 for 50% off this month." } });
   console.log("Seeded.");
 }
 

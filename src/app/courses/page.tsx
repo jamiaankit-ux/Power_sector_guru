@@ -9,7 +9,7 @@ export const metadata = { title: "Courses" };
 export default async function Courses({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
   const where: Prisma.CourseWhereInput = { published: true };
-  if (sp.q) where.OR = [{ title: { contains: sp.q } }, { subtitle: { contains: sp.q } }, { tags: { contains: sp.q.toLowerCase() } }, { instructorName: { contains: sp.q } }];
+  if (sp.q) where.OR = [{ title: { contains: sp.q, mode: "insensitive" } }, { subtitle: { contains: sp.q, mode: "insensitive" } }, { tags: { contains: sp.q.toLowerCase(), mode: "insensitive" } }, { instructorName: { contains: sp.q, mode: "insensitive" } }];
   if (sp.category) where.category = { slug: sp.category };
   if (sp.level) where.level = sp.level;
   if (sp.price === "free") where.priceInPaise = 0;

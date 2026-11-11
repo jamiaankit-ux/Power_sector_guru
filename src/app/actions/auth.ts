@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { endSession, isEmail, normalizePhone, startSession } from "@/lib/auth";
-import { sendOtp, verifyOtp } from "@/lib/otp";
+import { otpAvailable, sendOtp, verifyOtp } from "@/lib/otp";
 
 export type FormState = { error?: string; ok?: string; step?: "otp"; devCode?: string; identifier?: string } | undefined;
 
@@ -62,6 +62,7 @@ export async function loginWithPassword(_: FormState, fd: FormData): Promise<For
 export async function requestOtp(_: FormState, fd: FormData): Promise<FormState> {
   const id = parseIdentifier(String(fd.get("identifier") || ""));
   if (!id) return { error: "Enter your email address or 10 digit mobile number" };
+  if (!otpAvailable()) return { error: "One-time codes are not available yet. Please sign in with your password." };
   const user = await db.user.findUnique({ where: id.kind === "email" ? { email: id.value } : { phone: id.value } });
   if (!user) return { error: "No account found. Please register first." };
   try {

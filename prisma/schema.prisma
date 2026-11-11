@@ -1,12 +1,12 @@
 // Database schema for Power Academy.
-// Development uses SQLite. For production, change provider to "postgresql"
-// and set DATABASE_URL to your Postgres connection string.
+// Uses PostgreSQL. Set DATABASE_URL to your Postgres connection string
+// (free options: Neon, Supabase, or the Render database created by render.yaml).
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

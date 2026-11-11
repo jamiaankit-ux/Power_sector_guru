@@ -4,12 +4,13 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { inr } from "@/lib/format";
 import { completeMockPayment } from "@/app/actions/checkout";
+import { testPaymentsAllowed } from "@/lib/payments";
 
 export default async function MockPay({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
   const { order: id } = await searchParams;
   const user = await requireUser();
   const order = await db.order.findFirst({ where: { id, userId: user.id } });
-  if (!order) redirect("/pricing");
+  if (!order || !testPaymentsAllowed()) redirect("/pricing");
   async function pay(fd: FormData) {
     "use server";
     await completeMockPayment(String(fd.get("id")), fd.get("ok") === "1");
