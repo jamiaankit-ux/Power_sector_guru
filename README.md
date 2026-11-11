@@ -78,22 +78,50 @@ Payment code lives in `src/lib/payments/index.ts`; adding another gateway (PayU,
 
 ## Before the real launch
 
-1. Add payment keys (`PAYMENT_PROVIDER=razorpay` plus keys) and an SMS provider for OTP.
-2. Host videos on Bunny Stream, Cloudflare Stream, Vimeo or S3 + CloudFront and paste links into lessons.
-3. Add your GSTIN and address to the invoice template (`src/app/invoice/[id]/page.tsx`) and your terms/privacy pages.
-4. Use paid hosting/database plans so the site never sleeps and data is backed up.
+1. **Your own domain and SSL.** Buy a domain (e.g. `powersectoracademy.in`) from GoDaddy, Namecheap or Cloudflare. In Render → your web service → Settings → Custom Domains, add `powersectoracademy.in` and `www.powersectoracademy.in`, then create the DNS records Render shows (CNAME for `www`, A/ALIAS for the root). Render issues and renews the SSL certificate automatically. Then set `APP_URL=https://powersectoracademy.in` and redeploy. Security headers (HSTS, clickjacking and sniffing protection) are already on.
+2. **Paid plans.** Move the web service to Starter and the database to a paid plan (the free database is deleted after 30 days and the free server sleeps).
+3. **Payments and OTP.** `PAYMENT_PROVIDER=razorpay` plus keys; `SMS_PROVIDER=msg91` (DLT-registered template) and/or `EMAIL_PROVIDER=resend`.
+4. **Business details and policies.** Admin → Settings: GSTIN, address, support email/phone/WhatsApp, terms, privacy and refund policy (Razorpay and the app stores require these pages).
 
-## Apps for every device
+## Where things are stored
 
-- **Installable app (no store needed):** the site is a Progressive Web App. Android/Windows/Mac (Chrome or Edge): "Install app". iPhone/iPad: Safari → Share → Add to Home Screen. Instructions for learners are at `/install`.
-- **Play Store and App Store:** Capacitor wraps the deployed site in native shells.
-  ```bash
-  npm i @capacitor/android @capacitor/ios
-  APP_URL=https://your-domain npx cap add android && npx cap add ios
-  npx cap open android   # build in Android Studio
-  npx cap open ios       # build in Xcode (needs a Mac and Apple developer account)
-  ```
+| What | Where | Notes |
+|---|---|---|
+| Learners, progress, orders, certificates | PostgreSQL (Render) | Paid plan includes daily backups |
+| PDFs, slides, cover images | Cloudflare R2 bucket if `S3_*` is set, otherwise the database (max 15 MB each) | R2: 10 GB free, no download fees |
+| Videos | Your video host (Bunny Stream recommended) | Paste the HLS (`.m3u8`) or MP4 link into the lesson |
+
+**Cloudflare R2 setup:** create a bucket, enable public access (or connect `files.yourdomain`), create an API token, then set `S3_BUCKET`, `S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_PUBLIC_URL=https://files.yourdomain`. Any S3-compatible store works (AWS S3, DigitalOcean Spaces).
+
+**Video hosting:** Bunny Stream (about $5 per TB, India edge, HLS, token security, DRM option) is the best value. Cloudflare Stream and Vimeo also work. The player streams HLS on every device and shows a moving watermark with the learner's email to discourage screen recording. Unlisted YouTube links also work.
+
+## Optional add-ons
+
+- **AI study assistant:** set `ANTHROPIC_API_KEY` (from console.anthropic.com). Every lesson then gets an "Ask the AI study assistant" panel grounded in the lesson text. Uses Claude (`TUTOR_MODEL`, default `claude-opus-5-5`) with server-side fallback enabled, so if the model declines a request the API retries on its default fallback model. Daily limit per learner: `TUTOR_DAILY_LIMIT` (default 30). Admin → AI assistant shows what learners ask.
+- **Push notifications:** create a Firebase project, add the Android app (`in.powersectoracademy.app`) and download `google-services.json` into `android/app/`. For iPhone, add the iOS app in Firebase, upload your APNs key, and add Firebase Messaging to the Xcode project (see the Capacitor push guide). Create a service account key (Project settings → Service accounts) and paste the JSON into `FIREBASE_SERVICE_ACCOUNT`. Send from Admin → Push notifications.
+
+## Play Store and App Store apps
+
+The website is also an installable app (PWA) on Android, Windows and Mac (“Install app” in Chrome/Edge) and iPhone (Safari → Share → Add to Home Screen); learner instructions are at `/install`.
+
+The `android/` and `ios/` folders are native apps (Capacitor) that open your live site, so every website update reaches app users without a new store release. Inside the apps, prices, plans and checkout are hidden (Google Play and Apple require their own billing for in-app digital purchases); learners buy on the website and their courses appear in the app.
+
+```bash
+npm install
+APP_URL=https://powersectoracademy.in npx cap sync   # after changing the domain
+npm run app:assets                                   # regenerate icons/splash after changing the logo
+npx cap open android   # Android Studio → Build → Generate Signed Bundle (.aab) → upload to Play Console
+npx cap open ios       # Xcode on a Mac → Product → Archive → upload to App Store Connect
+```
+
+No Mac? Codemagic or Ionic Appflow can build and upload the iOS app from this repository in the cloud.
+
+Store checklist: Google Play developer account ($25 once), Apple developer account ($99/year), privacy policy URL (`/privacy`), support URL, screenshots (phone and tablet), a demo learner login for the reviewers, and the data-safety / privacy questionnaire (we collect name, email, phone and learning activity; no data sold).
+
+## Admin console
+
+Overview with 7/30/90-day revenue, watch hours, sign-ups and quiz pass rate · courses with curriculum builder, duplicate, uploads and quiz CSV import with per-question analytics · plans, bundles and discount codes · orders and CSV exports · learner profiles (progress, quiz attempts, grant/revoke access, reset password) · certificates (search, revoke/restore) · doubts · AI assistant questions · announcements and push notifications · business settings and policies · activity log. Instructors (role INSTRUCTOR) see only the courses they own and the doubts.
 
 ## Tech
 
-Next.js 15 (App Router, server actions), React 19, Tailwind CSS 4, Prisma, JWT cookie sessions, pdf-lib + QR certificates, Capacitor for native apps.
+Next.js 15 (App Router, server actions), React 19, Tailwind CSS 4, Prisma on PostgreSQL, JWT cookie sessions, pdf-lib + QR certificates, Capacitor 7 for the Android and iOS apps, hls.js, Anthropic SDK for the AI assistant, S3-compatible storage, Firebase Cloud Messaging.

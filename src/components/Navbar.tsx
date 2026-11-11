@@ -15,7 +15,7 @@ export async function Navbar() {
           <Link href="/" aria-label="Home"><Logo /></Link>
           <nav className="hidden items-center gap-1 text-sm font-medium md:flex">
             <Link className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800" href="/courses">Courses</Link>
-            <Link className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800" href="/pricing">Plans & bundles</Link>
+            <Link className="hide-in-app rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800" href="/pricing">Plans & bundles</Link>
             <Link className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800" href="/leaderboard">Leaderboard</Link>
             <Link className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800" href="/verify">Verify certificate</Link>
           </nav>

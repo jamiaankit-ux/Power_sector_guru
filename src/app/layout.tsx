@@ -3,6 +3,8 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PwaRegister } from "@/components/PwaRegister";
+import { NativeBridge } from "@/components/NativeBridge";
+import { isNativeApp } from "@/lib/app-mode";
 
 export const metadata: Metadata = {
   title: { default: "Power Sector Academy: Making you ready for AI-enabled Power Sector", template: "%s · Power Sector Academy" },
@@ -21,15 +23,16 @@ export const viewport: Viewport = {
 
 const themeScript = `try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}`;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const inApp = await isNativeApp();
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={inApp ? "app-mode" : undefined}>
       <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
       <body className="min-h-screen antialiased">
         <Navbar />
         <main>{children}</main>
         <Footer />
-        <PwaRegister />
+        {inApp ? <NativeBridge /> : <PwaRegister />}
       </body>
     </html>
   );

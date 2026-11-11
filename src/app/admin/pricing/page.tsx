@@ -1,3 +1,4 @@
+import { requireFullAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { parseList } from "@/lib/format";
 import { saveBundle, savePlan } from "@/app/actions/admin";
@@ -19,6 +20,7 @@ function PlanForm({ p }: { p?: Plan }) {
 }
 
 export default async function AdminPricing() {
+  await requireFullAdmin();
   const [plans, bundles, courses] = await Promise.all([
     db.plan.findMany({ orderBy: { priceInPaise: "asc" } }),
     db.bundle.findMany({ include: { courses: true } }),

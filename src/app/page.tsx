@@ -105,7 +105,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="container-x mt-24">
+      <section className="hide-in-app container-x mt-24">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 to-indigo-700 p-8 text-white sm:p-12">
           <div className="grid items-center gap-6 lg:grid-cols-[1fr_auto]">
             <div>

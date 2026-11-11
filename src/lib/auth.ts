@@ -49,3 +49,10 @@ export function normalizePhone(raw: string) {
 export function isEmail(s: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
 }
+
+/** Full admins only (instructors are limited to their own courses and doubts). */
+export async function requireFullAdmin() {
+  const u = await requireAdmin();
+  if (u.role !== "ADMIN") redirect("/admin/courses");
+  return u;
+}

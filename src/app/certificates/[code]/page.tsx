@@ -10,6 +10,14 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
   const { code } = await params;
   const c = await db.certificate.findUnique({ where: { code }, include: { user: true, course: true } });
   if (!c) notFound();
+  if (c.revoked)
+    return (
+      <div className="container-x max-w-xl py-16 text-center">
+        <div className="text-5xl">⚠️</div>
+        <h1 className="h-section mt-4">Certificate revoked</h1>
+        <p className="muted mt-2">Certificate {c.code} was issued by Power Sector Academy but has since been revoked and is no longer valid. Please contact us if you believe this is a mistake.</p>
+      </div>
+    );
   const me = await currentUser();
   const mine = me?.id === c.userId;
   const issued = c.issuedAt;

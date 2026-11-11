@@ -3,5 +3,3 @@ node_modules
 *.db
 *.db-journal
 .env
-android
-ios

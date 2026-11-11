@@ -2,6 +2,7 @@
 import { useActionState, useState } from "react";
 import { KeyRound, Mail, Smartphone } from "lucide-react";
 import { confirmOtp, loginWithPassword, requestOtp, type FormState } from "@/app/actions/auth";
+import { keepValues } from "./keepValues";
 
 export function LoginForm({ next, otp = true }: { next?: string; otp?: boolean }) {
   const [mode, setMode] = useState<"password" | "otp">("password");
@@ -21,7 +22,7 @@ export function LoginForm({ next, otp = true }: { next?: string; otp?: boolean }
       </div>}
 
       {mode === "password" ? (
-        <form action={pwAction} className="mt-6 space-y-4">
+        <form onSubmit={keepValues(pwAction)} className="mt-6 space-y-4">
           <input type="hidden" name="next" value={next ?? ""} />
           <div>
             <label className="label" htmlFor="identifier">Email or mobile number</label>
@@ -29,7 +30,7 @@ export function LoginForm({ next, otp = true }: { next?: string; otp?: boolean }
               <input id="identifier" name="identifier" className="input pl-9" placeholder="you@company.com or 98XXXXXXXX" autoComplete="username" required /></div>
           </div>
           <div>
-            <label className="label" htmlFor="password">Password</label>
+            <div className="flex justify-between"><label className="label" htmlFor="password">Password</label><a href="/forgot-password" className="text-xs font-semibold text-brand-600">Forgot password?</a></div>
             <div className="relative"><KeyRound className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />
               <input id="password" name="password" type="password" className="input pl-9" autoComplete="current-password" required /></div>
           </div>

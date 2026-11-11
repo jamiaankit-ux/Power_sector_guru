@@ -1,9 +1,11 @@
+import { requireFullAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { Download } from "lucide-react";
 import { db } from "@/lib/db";
 import { fmtDate, inr } from "@/lib/format";
 
 export default async function AdminOrders({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+  await requireFullAdmin();
   const { status } = await searchParams;
   const orders = await db.order.findMany({ where: status ? { status } : {}, include: { user: true }, orderBy: { createdAt: "desc" }, take: 200 });
   return (

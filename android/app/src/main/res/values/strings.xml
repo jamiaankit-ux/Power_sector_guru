@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Power Sector Academy</string>
+    <string name="title_activity_main">Power Sector Academy</string>
+    <string name="package_name">in.powersectoracademy.app</string>
+    <string name="custom_url_scheme">in.powersectoracademy.app</string>
+</resources>

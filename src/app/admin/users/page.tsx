@@ -1,8 +1,11 @@
+import Link from "next/link";
+import { requireFullAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { fmtDate, hours } from "@/lib/format";
 import { grantAccess, setRole } from "@/app/actions/admin";
 
 export default async function Users({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  await requireFullAdmin();
   const { q } = await searchParams;
   const [users, courses] = await Promise.all([
     db.user.findMany({
@@ -14,14 +17,14 @@ export default async function Users({ searchParams }: { searchParams: Promise<{ 
   ]);
   return (
     <div>
-      <h1 className="h-section">Learners</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="h-section">Learners</h1><a href="/api/admin/learners.csv" className="btn-ghost">Download CSV</a></div>
       <form className="mt-4 flex max-w-md gap-2"><input name="q" defaultValue={q} className="input" placeholder="Search name, email, phone, organisation" /><button className="btn-primary">Search</button></form>
       <div className="card mt-6 overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500 dark:bg-slate-800/50"><tr><th className="px-4 py-3">Learner</th><th className="px-4 py-3">Organisation</th><th className="px-4 py-3">Courses</th><th className="px-4 py-3">Hours</th><th className="px-4 py-3">Last active</th><th className="px-4 py-3">Role</th><th className="px-4 py-3">Give access</th></tr></thead>
           <tbody>{users.map((u) => (
             <tr key={u.id} className="border-t border-slate-100 align-top dark:border-slate-800">
-              <td className="px-4 py-3"><div className="font-medium">{u.name}</div><div className="muted text-xs">{u.email}{u.email && u.phone && " · "}{u.phone}</div></td>
+              <td className="px-4 py-3"><Link href={`/admin/users/${u.id}`} className="font-medium hover:text-brand-600">{u.name}</Link><div className="muted text-xs">{u.email}{u.email && u.phone && " · "}{u.phone}</div></td>
               <td className="px-4 py-3 text-xs">{u.organization}<div className="muted">{u.designation}</div></td>
               <td className="px-4 py-3">{u._count.enrollments} <span className="muted text-xs">({u._count.certificates} certs)</span></td>
               <td className="px-4 py-3">{hours(u.activity.reduce((a, x) => a + x.seconds, 0))}</td>

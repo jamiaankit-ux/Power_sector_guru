@@ -1,8 +1,10 @@
+import { requireFullAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { fmtDate, inr } from "@/lib/format";
 import { saveCoupon, toggleCoupon } from "@/app/actions/admin";
 
 export default async function Coupons({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  await requireFullAdmin();
   const { error } = await searchParams;
   const [coupons, courses, bundles, plans] = await Promise.all([
     db.coupon.findMany({ orderBy: { createdAt: "desc" } }), db.course.findMany({ where: { priceInPaise: { gt: 0 } } }), db.bundle.findMany(), db.plan.findMany(),
