@@ -429,7 +429,7 @@ async function main() {
 
   if (!process.env.ADMIN_PHONE && !process.env.ADMIN_PASSWORD) process.env.ADMIN_PHONE = "9999999999";
   await ensureAdmin();
-  await db.announcement.create({ data: { title: "Welcome to Power Academy", body: "New course on Electricity Markets is live. Use code LAUNCH50 for 50% off this month." } });
+  await db.announcement.create({ data: { title: "Welcome to Power Sector Academy", body: "New course on Electricity Markets is live. Use code LAUNCH50 for 50% off this month." } });
 
   if (process.env.SEED_DEMO_LEARNER === "false") {
     console.log("Seeded courses, plans, bundles and codes (no demo learner).");

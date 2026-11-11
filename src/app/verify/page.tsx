@@ -16,9 +16,9 @@ export default async function Verify({ searchParams }: { searchParams: Promise<{
     <div className="container-x max-w-xl py-16">
       <BadgeCheck className="h-10 w-10 text-brand-600" />
       <h1 className="h-section mt-4">Verify a certificate</h1>
-      <p className="muted mt-2">Employers and institutions can confirm a Power Academy certificate using the ID printed on it.</p>
+      <p className="muted mt-2">Employers and institutions can confirm a Power Sector Academy certificate using the ID printed on it.</p>
       <form className="mt-6 flex gap-2">
-        <input name="code" defaultValue={code} className="input" placeholder="PA-2026-XXXXXXXX" required />
+        <input name="code" defaultValue={code} className="input" placeholder="PSA-2026-XXXXXXXX" required />
         <button className="btn-primary">Verify</button>
       </form>
       {notFoundMsg && <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-500/10 dark:text-rose-300">No certificate found with that ID.</p>}

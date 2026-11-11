@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Power Academy",
-    short_name: "PowerAcademy",
+    name: "Power Sector Academy",
+    short_name: "PS Academy",
     description: "Power sector courses, study material, quizzes and certificates",
     start_url: "/dashboard",
     display: "standalone",

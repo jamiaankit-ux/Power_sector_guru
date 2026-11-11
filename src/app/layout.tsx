@@ -5,10 +5,10 @@ import { Footer } from "@/components/Footer";
 import { PwaRegister } from "@/components/PwaRegister";
 
 export const metadata: Metadata = {
-  title: { default: "Power Academy: Power sector courses and certification", template: "%s · Power Academy" },
+  title: { default: "Power Sector Academy: Making you ready for AI-enabled Power Sector", template: "%s · Power Sector Academy" },
   description: "Learn power systems, grid operations, renewables, electricity markets and regulation from industry experts. Video lectures, study material, quizzes and verifiable certificates.",
-  applicationName: "Power Academy",
-  appleWebApp: { capable: true, title: "Power Academy", statusBarStyle: "black-translucent" },
+  applicationName: "Power Sector Academy",
+  appleWebApp: { capable: true, title: "Power Sector Academy", statusBarStyle: "black-translucent" },
   icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
 };
 

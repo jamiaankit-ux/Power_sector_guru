@@ -45,7 +45,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   return (
     <div className="container-x py-8">
-      {welcome && <div className="mb-6 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 p-6 text-white"><div className="text-xl font-bold">Welcome to Power Academy, {user.name.split(" ")[0]}! ⚡</div><p className="mt-1 text-blue-100">Start with our free Power System Fundamentals course, or browse the full catalogue.</p><Link href="/courses" className="btn-volt mt-4">Browse courses</Link></div>}
+      {welcome && <div className="mb-6 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 p-6 text-white"><div className="text-xl font-bold">Welcome to Power Sector Academy, {user.name.split(" ")[0]}! ⚡</div><p className="mt-1 text-blue-100">Start with our free Power System Fundamentals course, or browse the full catalogue.</p><Link href="/courses" className="btn-volt mt-4">Browse courses</Link></div>}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="h-section">Hi {user.name.split(" ")[0]}, keep the current flowing</h1>

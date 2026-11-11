@@ -1,4 +1,4 @@
-# Power Academy — Power sector learning platform
+# Power Sector Academy — Making you ready for AI-enabled Power Sector
 
 A complete learning management system (LMS) for power sector courses. One codebase runs as a **website** and installs as an **app on Android, iPhone, Windows and Mac**, with native **Play Store / App Store** builds available through Capacitor.
 

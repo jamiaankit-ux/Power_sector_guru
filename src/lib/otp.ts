@@ -25,7 +25,7 @@ export async function sendOtp(target: string, channel: "sms" | "email") {
     data: { target, codeHash: hash(code), expiresAt: new Date(Date.now() + 10 * 60_000) },
   });
   const provider = channel === "sms" ? process.env.SMS_PROVIDER : process.env.EMAIL_PROVIDER;
-  const text = `${code} is your Power Academy verification code. It expires in 10 minutes.`;
+  const text = `${code} is your Power Sector Academy verification code. It expires in 10 minutes.`;
   switch (provider) {
     case "msg91":
       await fetch("https://control.msg91.com/api/v5/otp", {

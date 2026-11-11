@@ -3,6 +3,7 @@ import { Activity, Award, BarChart3, BookOpenCheck, Download, MessageSquare, Pla
 import { db } from "@/lib/db";
 import { courseCards } from "@/lib/catalog";
 import { CourseCard } from "@/components/CourseCard";
+import { TAGLINE } from "@/components/Logo";
 
 const icons: Record<string, React.ElementType> = { zap: Zap, activity: Activity, sun: Sun, scale: Scale };
 
@@ -23,7 +24,7 @@ export default async function Home() {
         </svg>
         <div className="container-x relative grid items-center gap-12 py-20 lg:grid-cols-2 lg:py-28">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-volt-400 ring-1 ring-white/20"><Zap className="h-3.5 w-3.5" />Built for India&apos;s power professionals</span>
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-volt-400 ring-1 ring-white/20"><Zap className="h-3.5 w-3.5" />{TAGLINE}</span>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               Master the power sector, <span className="text-volt-400">one lesson at a time.</span>
             </h1>

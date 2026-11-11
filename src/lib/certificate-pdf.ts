@@ -16,8 +16,8 @@ export async function certificatePdf(c: { code: string; name: string; course: st
   page.drawRectangle({ x: 18, y: 18, width: W - 36, height: H - 36, borderColor: navy, borderWidth: 3 });
   page.drawRectangle({ x: 28, y: 28, width: W - 56, height: H - 56, borderColor: gold, borderWidth: 1 });
   page.drawRectangle({ x: 18, y: H - 90, width: W - 36, height: 72, color: navy });
-  page.drawText("POWER ACADEMY", { x: 60, y: H - 62, size: 22, font: sansB, color: rgb(1, 1, 1) });
-  page.drawText("Power sector learning and certification", { x: 60, y: H - 80, size: 10, font: sans, color: rgb(0.8, 0.85, 1) });
+  page.drawText("POWER SECTOR ACADEMY", { x: 60, y: H - 62, size: 22, font: sansB, color: rgb(1, 1, 1) });
+  page.drawText("Making you ready for AI-enabled Power Sector", { x: 60, y: H - 80, size: 10, font: sans, color: rgb(0.8, 0.85, 1) });
 
   const center = (t: string, y: number, size: number, font = serif, color = navy) =>
     page.drawText(t, { x: (W - font.widthOfTextAtSize(t, size)) / 2, y, size, font, color });
@@ -39,9 +39,9 @@ export async function certificatePdf(c: { code: string; name: string; course: st
   const qr = await QRCode.toBuffer(c.verifyUrl, { margin: 1, width: 240, color: { dark: "#0b1b3f", light: "#ffffff" } });
   const img = await pdf.embedPng(qr);
   page.drawImage(img, { x: W - 180, y: 60, width: 100, height: 100 });
-  page.drawText(`Certificate ID: ${c.code}`, { x: W - 330, y: 92, size: 10, font: sansB, color: navy });
-  page.drawText("Scan or visit to verify:", { x: W - 330, y: 78, size: 9, font: sans, color: grey });
-  page.drawText(c.verifyUrl.replace(/^https?:\/\//, "").slice(0, 40), { x: W - 330, y: 66, size: 8, font: sans, color: blue });
+  page.drawText(`Certificate ID: ${c.code}`, { x: W - 400, y: 92, size: 10, font: sansB, color: navy });
+  page.drawText("Scan or visit to verify:", { x: W - 400, y: 78, size: 9, font: sans, color: grey });
+  page.drawText(c.verifyUrl.replace(/^https?:\/\//, "").slice(0, 40), { x: W - 400, y: 66, size: 8, font: sans, color: blue });
 
   // gold seal
   page.drawCircle({ x: W / 2, y: 110, size: 38, color: gold });

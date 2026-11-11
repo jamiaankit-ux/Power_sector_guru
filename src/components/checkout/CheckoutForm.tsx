@@ -36,7 +36,7 @@ export function CheckoutForm({ type, id, initial, initialCoupon }: { type: "COUR
         document.body.appendChild(el);
       });
       const rzp = new window.Razorpay!({
-        key: s.keyId, amount: s.amount, currency: "INR", name: "Power Academy", description: s.name, order_id: s.rzpOrderId,
+        key: s.keyId, amount: s.amount, currency: "INR", name: "Power Sector Academy", description: s.name, order_id: s.rzpOrderId,
         prefill: { email: s.email, contact: s.phone }, theme: { color: "#1d4ed8" },
         handler: async (resp: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
           await fetch("/api/payments/razorpay/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderId: s.orderId, ...resp }) });

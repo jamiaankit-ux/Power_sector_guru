@@ -1,4 +1,4 @@
-// Database schema for Power Academy.
+// Database schema for Power Sector Academy.
 // Uses PostgreSQL. Set DATABASE_URL to your Postgres connection string
 // (free options: Neon, Supabase, or the Render database created by render.yaml).
 generator client {

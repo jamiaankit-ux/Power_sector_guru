@@ -87,7 +87,7 @@ export async function maybeIssueCertificate(userId: string, courseId: string) {
   if (existing) return existing;
   const p = await courseProgress(userId, courseId);
   if (p.total === 0 || p.completed < p.total || p.quizAvg < course.passPercent) return null;
-  const code = `PA-${new Date().getFullYear()}-${randomBytes(4).toString("hex").toUpperCase()}`;
+  const code = `PSA-${new Date().getFullYear()}-${randomBytes(4).toString("hex").toUpperCase()}`;
   await db.enrollment.updateMany({ where: { userId, courseId }, data: { completedAt: new Date() } });
   return db.certificate.create({
     data: { code, userId, courseId, scorePct: p.quizAvg, hours: Math.round((p.watchedSeconds / 3600) * 10) / 10 },
