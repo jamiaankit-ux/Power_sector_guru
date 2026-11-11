@@ -1,8 +1,10 @@
+import { requireFullAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { fmtDate } from "@/lib/format";
 import { postAnnouncement } from "@/app/actions/admin";
 
 export default async function Announcements() {
+  await requireFullAdmin();
   const list = await db.announcement.findMany({ orderBy: { createdAt: "desc" } });
   return (
     <div>

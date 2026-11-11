@@ -5,7 +5,7 @@ import { fmtDate } from "@/lib/format";
 export async function GET(req: Request, { params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
   const c = await db.certificate.findUnique({ where: { code }, include: { user: true, course: true } });
-  if (!c) return new Response("Not found", { status: 404 });
+  if (!c || c.revoked) return new Response("Not found", { status: 404 });
   const base = process.env.APP_URL || new URL(req.url).origin;
   const bytes = await certificatePdf({
     code: c.code, name: c.user.name, course: c.course.title, instructor: c.course.instructorName,

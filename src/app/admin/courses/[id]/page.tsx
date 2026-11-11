@@ -1,27 +1,42 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ArrowDown, ArrowUp, ExternalLink, FileText, ListChecks, PlayCircle, Trash2 } from "lucide-react";
+import { notFound, redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth";
+import { ArrowDown, ArrowUp, Copy, ExternalLink, FileText, ListChecks, PlayCircle, Trash2 } from "lucide-react";
 import { db } from "@/lib/db";
 import { duration } from "@/lib/format";
-import { addLesson, addModule, deleteCourse, deleteLesson, deleteModule, moveLesson, moveModule, renameModule } from "@/app/actions/admin";
+import { addLesson, addModule, deleteCourse, duplicateCourse, setCourseOwner, deleteLesson, deleteModule, moveLesson, moveModule, renameModule } from "@/app/actions/admin";
 import { CourseForm } from "../CourseForm";
 
 const icons = { VIDEO: PlayCircle, READING: FileText, QUIZ: ListChecks } as Record<string, React.ElementType>;
 
 export default async function EditCourse({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [course, categories] = await Promise.all([
+  const me = await requireAdmin();
+  const [course, categories, staff] = await Promise.all([
     db.course.findUnique({ where: { id }, include: { modules: { orderBy: { order: "asc" }, include: { lessons: { orderBy: { order: "asc" } } } } } }),
     db.category.findMany(),
+    db.user.findMany({ where: { role: { in: ["ADMIN", "INSTRUCTOR"] } }, select: { id: true, name: true, role: true }, orderBy: { name: "asc" } }),
   ]);
   if (!course) notFound();
+  if (me.role !== "ADMIN" && course.ownerId !== me.id) redirect("/admin/courses");
   const iconBtn = "rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800";
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div><Link href="/admin/courses" className="muted text-sm">← Courses</Link><h1 className="h-section">{course.title}</h1></div>
-        <Link href={`/courses/${course.slug}`} className="btn-ghost"><ExternalLink className="h-4 w-4" />View page</Link>
+        <div className="flex flex-wrap gap-2">
+          <form action={duplicateCourse}><input type="hidden" name="id" value={course.id} /><button className="btn-ghost"><Copy className="h-4 w-4" />Duplicate</button></form>
+          <Link href={`/courses/${course.slug}`} className="btn-ghost"><ExternalLink className="h-4 w-4" />View page</Link>
+        </div>
       </div>
+      {me.role === "ADMIN" && (
+        <form action={setCourseOwner} className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+          <input type="hidden" name="id" value={course.id} />
+          <span className="muted">Course owner (instructors can edit only courses they own):</span>
+          <select name="ownerId" defaultValue={course.ownerId ?? ""} className="input w-auto py-1.5 text-sm"><option value="">No owner (admins only)</option>{staff.map((u) => <option key={u.id} value={u.id}>{u.name} · {u.role.toLowerCase()}</option>)}</select>
+          <button className="btn-ghost py-1.5">Save</button>
+        </form>
+      )}
 
       <h2 className="mt-8 text-xl font-bold">Curriculum</h2>
       <div className="mt-4 space-y-4">

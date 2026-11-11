@@ -1,6 +1,7 @@
 import { saveCourse } from "@/app/actions/admin";
 import { parseList } from "@/lib/format";
 import type { Category, Course } from "@prisma/client";
+import { UploadField } from "@/components/admin/UploadField";
 
 export function CourseForm({ course, categories }: { course?: Course; categories: Category[] }) {
   const c = course;
@@ -19,6 +20,7 @@ export function CourseForm({ course, categories }: { course?: Course; categories
       <div><label className="label">Access period in days (0 = lifetime)</label><input name="accessDays" type="number" min="0" defaultValue={c?.accessDays ?? 365} className="input" /></div>
       <div><label className="label">Certificate pass mark (%)</label><input name="passPercent" type="number" min="0" max="100" defaultValue={c?.passPercent ?? 60} className="input" /></div>
       <div><label className="label">Language</label><input name="language" defaultValue={c?.language ?? "English"} className="input" /></div>
+      <div className="sm:col-span-2"><label className="label">Cover image (optional, 1280×720 recommended)</label><UploadField name="coverImage" defaultValue={c?.coverImage} accept="image/*" placeholder="https://… or upload" /></div>
       <div><label className="label">Cover colour</label><input name="coverColor" type="color" defaultValue={c?.coverColor ?? "#1d4ed8"} className="input h-11 p-1" /></div>
       <div><label className="label">What learners will learn (one per line)</label><textarea name="outcomes" rows={4} defaultValue={c ? parseList(c.outcomes).join("\n") : ""} className="input" /></div>
       <div><label className="label">Requirements (one per line)</label><textarea name="requirements" rows={4} defaultValue={c ? parseList(c.requirements).join("\n") : ""} className="input" /></div>

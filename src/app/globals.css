@@ -54,3 +54,6 @@ body { -webkit-tap-highlight-color: transparent; padding-bottom: env(safe-area-i
   .no-print { display: none !important; }
   body { background: white !important; }
 }
+
+/* Inside the Play Store / App Store apps: no prices or purchase links (store billing rules). */
+html.app-mode .hide-in-app { display: none !important; }

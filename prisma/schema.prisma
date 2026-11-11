@@ -67,6 +67,7 @@ model Course {
   category           Category? @relation(fields: [categoryId], references: [id])
   instructorName     String
   instructorTitle    String   @default("")
+  ownerId            String? // instructor who manages this course (admins manage all)
   coverColor         String   @default("#0f766e")
   coverImage         String?
   priceInPaise       Int      @default(0)
@@ -203,6 +204,7 @@ model Certificate {
   issuedAt DateTime @default(now())
   scorePct Int      @default(0)
   hours    Float    @default(0)
+  revoked  Boolean  @default(false)
 
   @@unique([userId, courseId])
 }
@@ -333,4 +335,56 @@ model Announcement {
   body      String
   courseId  String?
   createdAt DateTime @default(now())
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userName  String   @default("")
+  action    String
+  details   String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model RateLimit {
+  key         String   @id
+  count       Int      @default(0)
+  windowStart DateTime @default(now())
+}
+
+model PushToken {
+  token     String   @id
+  userId    String?
+  platform  String   @default("android")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TutorMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String
+  role      String // user | assistant
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([userId, lessonId])
+  @@index([createdAt])
+}
+
+model StoredFile {
+  id          String   @id @default(cuid())
+  name        String
+  contentType String
+  size        Int
+  data        Bytes
+  createdAt   DateTime @default(now())
 }

@@ -12,6 +12,8 @@ import { VideoPlayer } from "@/components/learn/VideoPlayer";
 import { ReadingTracker } from "@/components/learn/ReadingTracker";
 import { QuizPlayer } from "@/components/learn/QuizPlayer";
 import { Notes } from "@/components/learn/Notes";
+import { TutorPanel } from "@/components/learn/TutorPanel";
+import { tutorEnabled } from "@/lib/tutor";
 
 const icons = { VIDEO: PlayCircle, READING: FileText, QUIZ: ListChecks } as Record<string, React.ElementType>;
 
@@ -46,6 +48,7 @@ export default async function LearnPage({ params }: { params: Promise<{ slug: st
     lesson.type === "QUIZ" ? db.quiz.findUnique({ where: { lessonId }, include: { questions: { orderBy: { order: "asc" } } } }) : null,
     db.certificate.findUnique({ where: { userId_courseId: { userId: user.id, courseId: course.id } } }),
   ]);
+  const tutorHistory = tutorEnabled() ? await db.tutorMessage.findMany({ where: { userId: user.id, lessonId }, orderBy: { createdAt: "asc" }, take: 20 }) : [];
   const attempts = quiz ? await db.quizAttempt.findMany({ where: { userId: user.id, quizId: quiz.id } }) : [];
   const prev = all[i - 1];
   const next = all[i + 1];
@@ -58,7 +61,7 @@ export default async function LearnPage({ params }: { params: Promise<{ slug: st
         </div>
 
         {lesson.type === "VIDEO" && lesson.videoUrl && (
-          <VideoPlayer lessonId={lesson.id} url={lesson.videoUrl} startAt={lp?.lastPosition ?? 0} notes={notes} onCertificate={undefined} />
+          <VideoPlayer lessonId={lesson.id} url={lesson.videoUrl} startAt={lp?.lastPosition ?? 0} notes={notes} onCertificate={undefined} watermark={user.email ?? user.phone ?? user.name} />
         )}
 
         <div className="px-4 lg:px-0">
@@ -102,6 +105,8 @@ export default async function LearnPage({ params }: { params: Promise<{ slug: st
             {prev ? <Link href={`/learn/${slug}/${prev.id}`} className="btn-ghost"><ArrowLeft className="h-4 w-4" />Previous</Link> : <span />}
             {next && <Link href={`/learn/${slug}/${next.id}`} className="btn-primary">Next lesson<ArrowRight className="h-4 w-4" /></Link>}
           </div>
+
+          {tutorEnabled() && <TutorPanel lessonId={lesson.id} initial={tutorHistory.map((m) => ({ role: m.role as "user" | "assistant", content: m.content }))} />}
 
           <section className="mt-10 max-w-3xl">
             <h2 className="flex items-center gap-2 text-lg font-bold"><MessageSquare className="h-5 w-5" />Questions and discussion</h2>

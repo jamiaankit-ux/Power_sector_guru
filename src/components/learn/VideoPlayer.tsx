@@ -9,7 +9,7 @@ declare global { interface Window { YT?: { Player: new (el: HTMLElement, o: obje
 
 const ytId = (url: string) => url.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)?.[1];
 
-export function VideoPlayer({ lessonId, url, startAt, notes, onCertificate }: { lessonId: string; url: string; startAt: number; notes: { id: string; body: string; positionSec: number }[]; onCertificate?: string }) {
+export function VideoPlayer({ lessonId, url, startAt, notes, onCertificate, watermark }: { lessonId: string; url: string; startAt: number; notes: { id: string; body: string; positionSec: number }[]; onCertificate?: string; watermark?: string }) {
   const router = useRouter();
   const video = useRef<HTMLVideoElement>(null);
   const ytEl = useRef<HTMLDivElement>(null);
@@ -35,6 +35,29 @@ export function VideoPlayer({ lessonId, url, startAt, notes, onCertificate }: { 
     }
   }, [youtube, startAt]);
 
+  // HLS streams (Bunny Stream, Cloudflare Stream, Mux): native on iPhone/Safari, hls.js elsewhere.
+  useEffect(() => {
+    const v = video.current;
+    if (youtube || !v || !/\.m3u8(\?|$)/.test(url)) return;
+    if (v.canPlayType("application/vnd.apple.mpegurl")) { v.src = url; return; }
+    let destroy: (() => void) | undefined;
+    import("hls.js").then(({ default: Hls }) => {
+      if (!Hls.isSupported()) return;
+      const hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(v);
+      destroy = () => hls.destroy();
+    });
+    return () => destroy?.();
+  }, [url, youtube]);
+
+  const [wmPos, setWmPos] = useState(0);
+  useEffect(() => {
+    if (!watermark) return;
+    const t = setInterval(() => setWmPos((p) => (p + 1) % 4), 20000);
+    return () => clearInterval(t);
+  }, [watermark]);
+
   const getPos = () => (youtube ? yt.current?.getCurrentTime?.() ?? 0 : video.current?.currentTime ?? 0);
   const getDur = () => (youtube ? yt.current?.getDuration?.() ?? 0 : video.current?.duration || 0);
   const playing = () => (youtube ? yt.current?.getPlayerState?.() === 1 : !!video.current && !video.current.paused && !video.current.ended);
@@ -50,10 +73,11 @@ export function VideoPlayer({ lessonId, url, startAt, notes, onCertificate }: { 
 
   return (
     <div>
-      <div className="aspect-video w-full overflow-hidden bg-black lg:rounded-2xl">
+      <div className="relative aspect-video w-full overflow-hidden bg-black lg:rounded-2xl">
+        {watermark && <div aria-hidden className={`pointer-events-none absolute z-10 select-none text-xs font-medium text-white/30 transition-all duration-1000 ${["left-4 top-4", "right-4 top-10", "bottom-16 left-6", "bottom-24 right-6"][wmPos]}`}>{watermark}</div>}
         {youtube ? <div ref={ytEl} className="h-full w-full" /> : (
           <video
-            ref={video} src={url} controls playsInline preload="metadata" className="h-full w-full" controlsList="nodownload"
+            ref={video} src={/\.m3u8(\?|$)/.test(url) ? undefined : url} controls playsInline preload="metadata" className="h-full w-full" controlsList="nodownload"
             onLoadedMetadata={(e) => { if (startAt > 5 && startAt < e.currentTarget.duration - 5) e.currentTarget.currentTime = startAt; }}
             onContextMenu={(e) => e.preventDefault()}
           />

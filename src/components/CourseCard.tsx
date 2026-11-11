@@ -5,10 +5,18 @@ import { duration, inr } from "@/lib/format";
 export type CourseCardData = {
   slug: string; title: string; subtitle: string; level: string; coverColor: string; instructorName: string;
   priceInPaise: number; mrpInPaise: number; lessons: number; seconds: number; rating?: number; reviews?: number; category?: string | null;
-  progress?: number;
+  progress?: number; coverImage?: string | null;
 };
 
-export function CourseCover({ title, color, category, small }: { title: string; color: string; category?: string | null; small?: boolean }) {
+export function CourseCover({ title, color, category, small, image }: { title: string; color: string; category?: string | null; small?: boolean; image?: string | null }) {
+  if (image)
+    return (
+      <div className={`relative overflow-hidden bg-slate-200 dark:bg-slate-800 ${small ? "h-28" : "h-40"}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={image} alt="" className="h-full w-full object-cover" loading="lazy" />
+        {!small && <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-3 pt-8">{category && <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-white/80">{category}</div>}<div className="line-clamp-2 text-lg font-bold leading-snug text-white">{title}</div></div>}
+      </div>
+    );
   return (
     <div className={`relative overflow-hidden ${small ? "h-28" : "h-40"}`} style={{ background: `linear-gradient(135deg, ${color}, #0b1b3f)` }}>
       <svg className="absolute -right-6 -top-6 h-48 w-48 opacity-20" viewBox="0 0 100 100" aria-hidden>
@@ -28,7 +36,7 @@ export function CourseCover({ title, color, category, small }: { title: string; 
 export function CourseCard({ c }: { c: CourseCardData }) {
   return (
     <Link href={`/courses/${c.slug}`} className="card group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg">
-      <CourseCover title={c.title} color={c.coverColor} category={c.category} />
+      <CourseCover title={c.title} color={c.coverColor} category={c.category} image={c.coverImage} />
       <div className="flex flex-1 flex-col p-4">
         <p className="muted line-clamp-2 text-sm">{c.subtitle}</p>
         <div className="muted mt-2 text-xs">{c.instructorName}</div>
@@ -47,7 +55,7 @@ export function CourseCard({ c }: { c: CourseCardData }) {
               <div className="muted mt-1 text-xs">{c.progress}% complete</div>
             </div>
           ) : (
-            <div className="flex items-baseline gap-2">
+            <div className="hide-in-app flex items-baseline gap-2">
               <span className="text-lg font-bold">{inr(c.priceInPaise)}</span>
               {c.mrpInPaise > c.priceInPaise && <span className="muted text-sm line-through">{inr(c.mrpInPaise)}</span>}
               {c.mrpInPaise > c.priceInPaise && <span className="text-xs font-semibold text-emerald-600">{Math.round((1 - c.priceInPaise / c.mrpInPaise) * 100)}% off</span>}

@@ -52,7 +52,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <p className="muted mt-1">{user.designation ? `${user.designation}${user.organization ? `, ${user.organization}` : ""}` : "Your learning performance at a glance"}</p>
         </div>
         {sub ? <span className="chip bg-emerald-50 py-1.5 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">{sub.plan.name} plan active until {fmtDate(sub.currentPeriodEnd)}</span>
-          : <Link href="/pricing" className="btn-ghost">Unlock all courses</Link>}
+          : <Link href="/pricing" className="hide-in-app btn-ghost">Unlock all courses</Link>}
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-5">
@@ -87,7 +87,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {(inProgress.length ? inProgress : progress).map(({ e, p }) => (
             <Link key={e.id} href={e.lastLessonId ? `/learn/${e.course.slug}/${e.lastLessonId}` : `/courses/${e.course.slug}`} className="card overflow-hidden hover:shadow-lg">
-              <CourseCover title={e.course.title} color={e.course.coverColor} small />
+              <CourseCover title={e.course.title} color={e.course.coverColor} image={e.course.coverImage} small />
               <div className="p-4">
                 <div className="font-semibold">{e.course.title}</div>
                 <div className="mt-3 h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-2 rounded-full bg-emerald-500" style={{ width: `${p.percent}%` }} /></div>

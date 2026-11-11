@@ -8,6 +8,7 @@ import { courseProgress } from "@/lib/progress";
 import { duration, fmtDate, inr, parseList } from "@/lib/format";
 import { enroll, submitReview } from "@/app/actions/course";
 import { CourseCover } from "@/components/CourseCard";
+import { isNativeApp } from "@/lib/app-mode";
 
 const lessonIcon = { VIDEO: PlayCircle, READING: FileText, QUIZ: ListChecks } as Record<string, React.ElementType>;
 
@@ -18,6 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function CoursePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const inApp = await isNativeApp();
   const course = await db.course.findUnique({
     where: { slug },
     include: {
@@ -134,7 +136,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
         <aside className="order-1 lg:order-2 lg:-mt-48">
           <div className="card sticky top-20 overflow-hidden shadow-xl">
-            <CourseCover title={course.title} color={course.coverColor} category={course.category?.name} small />
+            <CourseCover title={course.title} color={course.coverColor} category={course.category?.name} image={course.coverImage} small />
             <div className="p-6">
               {prog && (
                 <div className="mb-5">
@@ -142,7 +144,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                   <div className="mt-2 h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-2 rounded-full bg-emerald-500" style={{ width: `${prog.percent}%` }} /></div>
                 </div>
               )}
-              {!access && (
+              {!access && !inApp && (
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-extrabold">{inr(course.priceInPaise)}</span>
                   {course.mrpInPaise > course.priceInPaise && <><span className="muted line-through">{inr(course.mrpInPaise)}</span><span className="text-sm font-semibold text-emerald-600">{Math.round((1 - course.priceInPaise / course.mrpInPaise) * 100)}% off</span></>}
@@ -153,6 +155,8 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                   <Link href={`/learn/${course.slug}/${resumeId}`} className="btn-primary w-full py-3">{prog && prog.completed > 0 ? "Continue learning" : "Start course"}</Link>
                 ) : access || course.priceInPaise === 0 ? (
                   <form action={enroll}><input type="hidden" name="courseId" value={course.id} /><button className="btn-primary w-full py-3">{course.priceInPaise === 0 ? "Enroll for free" : "Start with your subscription"}</button></form>
+                ) : inApp ? (
+                  <div className="rounded-xl bg-slate-50 p-4 text-sm dark:bg-slate-800/60"><Lock className="mb-1 h-4 w-4 text-slate-400" />This course is available to enrolled learners. Preview lessons are open to everyone.</div>
                 ) : (
                   <>
                     <Link href={`/checkout?type=COURSE&id=${course.id}`} className="btn-primary w-full py-3">Buy now</Link>
@@ -168,7 +172,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 <li className="flex gap-2"><Smartphone className="h-4 w-4 text-slate-400" />Mobile, tablet, Windows and Mac</li>
                 {course.certificateEnabled && <li className="flex gap-2"><Award className="h-4 w-4 text-slate-400" />Certificate of completion</li>}
               </ul>
-              {course.bundles.length > 0 && !access && (
+              {course.bundles.length > 0 && !access && !inApp && (
                 <div className="mt-6 rounded-xl bg-amber-50 p-4 text-sm dark:bg-amber-500/10">
                   <div className="font-semibold">Save with a bundle</div>
                   {course.bundles.map(({ bundle }) => <Link key={bundle.id} href={`/pricing#${bundle.slug}`} className="mt-1 block text-brand-700 underline dark:text-volt-400">{bundle.title} · {inr(bundle.priceInPaise)}</Link>)}

@@ -2,15 +2,17 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { inr } from "@/lib/format";
 import { CourseForm } from "./CourseForm";
+import { requireAdmin } from "@/lib/auth";
 
 export default async function AdminCourses() {
+  const me = await requireAdmin();
   const [courses, categories] = await Promise.all([
-    db.course.findMany({ orderBy: { createdAt: "asc" }, include: { _count: { select: { enrollments: true, modules: true } } } }),
+    db.course.findMany({ where: me.role === "ADMIN" ? {} : { ownerId: me.id }, orderBy: { createdAt: "asc" }, include: { _count: { select: { enrollments: true, modules: true } } } }),
     db.category.findMany(),
   ]);
   return (
     <div>
-      <h1 className="h-section">Courses</h1>
+      <h1 className="h-section">{me.role === "ADMIN" ? "Courses" : "My courses"}</h1>
       <div className="card mt-6 overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500 dark:bg-slate-800/50"><tr><th className="px-4 py-3">Title</th><th className="px-4 py-3">Price</th><th className="px-4 py-3">Modules</th><th className="px-4 py-3">Learners</th><th className="px-4 py-3">Status</th></tr></thead>

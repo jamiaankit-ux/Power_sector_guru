@@ -5,6 +5,11 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { endSession, isEmail, normalizePhone, startSession } from "@/lib/auth";
 import { otpAvailable, sendOtp, verifyOtp } from "@/lib/otp";
+import { clientIp, rateLimit } from "@/lib/ratelimit";
+
+const SLOW_DOWN = "Too many attempts. Please wait a few minutes and try again.";
+const strongPassword = (pw: string) => pw.length >= 8 && /[A-Za-z]/.test(pw) && /\d/.test(pw);
+const PASSWORD_RULE = "Password must be at least 8 characters with letters and numbers";
 
 export type FormState = { error?: string; ok?: string; step?: "otp"; devCode?: string; identifier?: string } | undefined;
 
@@ -25,12 +30,13 @@ const registerSchema = z.object({
   name: z.string().trim().min(2, "Please enter your full name"),
   email: z.string().trim().email("Enter a valid email").optional().or(z.literal("")),
   phone: z.string().trim().optional().or(z.literal("")),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().refine(strongPassword, PASSWORD_RULE),
   organization: z.string().trim().optional(),
   designation: z.string().trim().optional(),
 });
 
 export async function register(_: FormState, fd: FormData): Promise<FormState> {
+  if (!(await rateLimit(`register:${await clientIp()}`, 10, 3600))) return { error: SLOW_DOWN };
   const parsed = registerSchema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const { name, password, organization, designation } = parsed.data;
@@ -52,6 +58,8 @@ export async function loginWithPassword(_: FormState, fd: FormData): Promise<For
   const id = parseIdentifier(String(fd.get("identifier") || ""));
   const password = String(fd.get("password") || "");
   if (!id) return { error: "Enter your email address or 10 digit mobile number" };
+  const ip = await clientIp();
+  if (!(await rateLimit(`login:${ip}`, 30, 900)) || !(await rateLimit(`login:${id.value}`, 10, 900))) return { error: SLOW_DOWN };
   const user = await db.user.findUnique({ where: id.kind === "email" ? { email: id.value } : { phone: id.value } });
   if (!user?.passwordHash || !(await bcrypt.compare(password, user.passwordHash)))
     return { error: "Incorrect login details. Try again or sign in with a one-time code." };
@@ -63,6 +71,7 @@ export async function requestOtp(_: FormState, fd: FormData): Promise<FormState>
   const id = parseIdentifier(String(fd.get("identifier") || ""));
   if (!id) return { error: "Enter your email address or 10 digit mobile number" };
   if (!otpAvailable()) return { error: "One-time codes are not available yet. Please sign in with your password." };
+  if (!(await rateLimit(`otp:${await clientIp()}`, 10, 900))) return { error: SLOW_DOWN };
   const user = await db.user.findUnique({ where: id.kind === "email" ? { email: id.value } : { phone: id.value } });
   if (!user) return { error: "No account found. Please register first." };
   try {
@@ -102,9 +111,37 @@ export async function updateProfile(_: FormState, fd: FormData): Promise<FormSta
   };
   const pw = String(fd.get("password") || "");
   if (pw) {
-    if (pw.length < 8) return { error: "Password must be at least 8 characters" };
+    if (!strongPassword(pw)) return { error: PASSWORD_RULE };
     data.passwordHash = await bcrypt.hash(pw, 10);
   }
   await db.user.update({ where: { id: u.id }, data });
   return { ok: "Profile saved" };
+}
+
+/* ---------- Forgot password (one-time code to email or mobile) ---------- */
+export async function requestReset(_: FormState, fd: FormData): Promise<FormState> {
+  const id = parseIdentifier(String(fd.get("identifier") || ""));
+  if (!id) return { error: "Enter your email address or 10 digit mobile number" };
+  if (!otpAvailable()) return { error: "Password reset by code is not switched on yet. Please contact support and we will reset it for you." };
+  if (!(await rateLimit(`reset:${await clientIp()}`, 10, 900))) return { error: SLOW_DOWN };
+  const user = await db.user.findUnique({ where: id.kind === "email" ? { email: id.value } : { phone: id.value } });
+  // Same reply whether or not the account exists, so the form can't be used to discover accounts.
+  let devCode: string | undefined;
+  if (user) {
+    try { devCode = (await sendOtp(id.value, id.kind === "email" ? "email" : "sms")).devCode; } catch (e) { return { error: (e as Error).message }; }
+  }
+  return { step: "otp", identifier: id.value, devCode, ok: `If an account exists for ${id.value}, we have sent it a 6 digit code.` };
+}
+
+export async function resetPassword(_: FormState, fd: FormData): Promise<FormState> {
+  const identifier = String(fd.get("identifier") || "");
+  const code = String(fd.get("code") || "");
+  const password = String(fd.get("password") || "");
+  if (!strongPassword(password)) return { step: "otp", identifier, error: PASSWORD_RULE };
+  if (!(await verifyOtp(identifier, code))) return { step: "otp", identifier, error: "That code is incorrect or expired." };
+  const user = await db.user.findFirst({ where: { OR: [{ email: identifier }, { phone: identifier }] } });
+  if (!user) return { error: "Account not found" };
+  await db.user.update({ where: { id: user.id }, data: { passwordHash: await bcrypt.hash(password, 10) } });
+  await startSession(user);
+  redirect("/dashboard?reset=1");
 }
