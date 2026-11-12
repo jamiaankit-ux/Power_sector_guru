@@ -1,7 +1,9 @@
 name: Android test app
 
-# Builds an installable test APK of the Android app (not the Play Store release).
-# Run it from GitHub → Actions → "Android test app" → Run workflow, then download "power-sector-academy-apk".
+# Builds installable test APKs of the Android apps (not the Play Store release):
+#   power-sector-academy-apk  the learner app
+#   psa-admin-apk             the owner's admin app, which opens straight into /admin
+# Run it from GitHub → Actions → "Android test app" → Run workflow, then download the files from the run.
 on:
   workflow_dispatch:
   push:
@@ -11,11 +13,13 @@ on:
       - "native-shell/**"
       - "capacitor.config.ts"
       - "package.json"
+      - "scripts/android-admin-variant.sh"
       - ".github/workflows/android-test-build.yml"
   pull_request:
     paths:
       - "android/**"
       - "capacitor.config.ts"
+      - "scripts/android-admin-variant.sh"
       - ".github/workflows/android-test-build.yml"
 
 permissions:
@@ -25,6 +29,18 @@ jobs:
   apk:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: learner
+            artifact: power-sector-academy-apk
+            file: power-sector-academy.apk
+          - variant: admin
+            artifact: psa-admin-apk
+            file: psa-admin.apk
+    env:
+      APP_VARIANT: ${{ matrix.variant }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,11 +53,17 @@ jobs:
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
       - run: npm ci --ignore-scripts
+      - name: Switch to the admin app
+        if: matrix.variant == 'admin'
+        run: |
+          command -v convert >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick)
+          ./scripts/android-admin-variant.sh
       - run: npx cap sync android
       - run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
         working-directory: android
+      - run: cp android/app/build/outputs/apk/debug/app-debug.apk "${{ matrix.file }}"
       - uses: actions/upload-artifact@v4
         with:
-          name: power-sector-academy-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.file }}
           if-no-files-found: error
