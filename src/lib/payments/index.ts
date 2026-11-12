@@ -1,5 +1,6 @@
 import "server-only";
 import { createHmac } from "crypto";
+import { getConfig } from "../config";
 
 /**
  * Pluggable payment gateway. Set PAYMENT_PROVIDER to "razorpay" or "stripe"
@@ -11,14 +12,14 @@ export type CheckoutStart =
   | { kind: "razorpay"; orderId: string; keyId: string; rzpOrderId: string; amount: number; name: string; email?: string; phone?: string }
   | { kind: "redirect"; url: string };
 
-export const provider = () => (process.env.PAYMENT_PROVIDER || "mock") as "mock" | "razorpay" | "stripe";
+export const provider = async () => ((await getConfig()).paymentProvider || "mock") as "mock" | "razorpay" | "stripe";
 
 /** Test payments let anyone unlock paid content, so they are off on a live site unless explicitly allowed. */
-export const testPaymentsAllowed = () =>
-  process.env.NODE_ENV !== "production" || process.env.ALLOW_TEST_PAYMENTS === "true";
+export const testPaymentsAllowed = async () =>
+  process.env.NODE_ENV !== "production" || (await getConfig()).allowTestPayments === "true";
 
 /** True when the site can take money (a real gateway is configured) or test payments are allowed. */
-export const paymentsEnabled = () => provider() !== "mock" || testPaymentsAllowed();
+export const paymentsEnabled = async () => (await provider()) !== "mock" || (await testPaymentsAllowed());
 
 export async function startCheckout(o: {
   orderId: string;
@@ -26,9 +27,10 @@ export async function startCheckout(o: {
   title: string;
   user: { name: string; email: string | null; phone: string | null };
 }): Promise<CheckoutStart & { providerRef?: string }> {
-  const p = provider();
+  const cfg = await getConfig();
+  const p = await provider();
   if (p === "razorpay") {
-    const auth = Buffer.from(`${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`).toString("base64");
+    const auth = Buffer.from(`${cfg.razorpayKeyId}:${cfg.razorpayKeySecret}`).toString("base64");
     const r = await fetch("https://api.razorpay.com/v1/orders", {
       method: "POST",
       headers: { Authorization: `Basic ${auth}`, "Content-Type": "application/json" },
@@ -39,7 +41,7 @@ export async function startCheckout(o: {
     return {
       kind: "razorpay",
       orderId: o.orderId,
-      keyId: process.env.RAZORPAY_KEY_ID!,
+      keyId: cfg.razorpayKeyId,
       rzpOrderId: j.id,
       amount: o.total,
       name: o.title,
@@ -63,7 +65,7 @@ export async function startCheckout(o: {
     if (o.user.email) body.set("customer_email", o.user.email);
     const r = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
-      headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}` },
+      headers: { Authorization: `Bearer ${cfg.stripeSecretKey}` },
       body,
     });
     if (!r.ok) throw new Error("Could not start Stripe payment");
@@ -73,8 +75,8 @@ export async function startCheckout(o: {
   return { kind: "mock", orderId: o.orderId };
 }
 
-export function verifyRazorpay(rzpOrderId: string, paymentId: string, signature: string) {
-  const expected = createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "")
+export async function verifyRazorpay(rzpOrderId: string, paymentId: string, signature: string) {
+  const expected = createHmac("sha256", (await getConfig()).razorpayKeySecret || "")
     .update(`${rzpOrderId}|${paymentId}`)
     .digest("hex");
   return expected === signature;
@@ -82,9 +84,26 @@ export function verifyRazorpay(rzpOrderId: string, paymentId: string, signature:
 
 export async function verifyStripeSession(sessionId: string) {
   const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
-    headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}` },
+    headers: { Authorization: `Bearer ${(await getConfig()).stripeSecretKey}` },
   });
   if (!r.ok) return false;
   const j = await r.json();
   return j.payment_status === "paid";
+}
+
+/** Refunds a paid order at the gateway. Returns a reference, or throws with the gateway's message. */
+export async function refundPayment(order: { provider: string; providerRef: string | null; total: number }) {
+  const cfg = await getConfig();
+  if (order.provider === "razorpay" && order.providerRef?.startsWith("pay_")) {
+    const auth = Buffer.from(`${cfg.razorpayKeyId}:${cfg.razorpayKeySecret}`).toString("base64");
+    const r = await fetch(`https://api.razorpay.com/v1/payments/${order.providerRef}/refund`, {
+      method: "POST",
+      headers: { Authorization: `Basic ${auth}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: order.total }),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j?.error?.description || "Razorpay could not refund this payment");
+    return String(j.id);
+  }
+  return null; // other providers / offline payments: refund the money yourself, the order is marked refunded
 }

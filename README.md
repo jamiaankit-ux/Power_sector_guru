@@ -60,7 +60,7 @@ The demo includes 6 power sector courses (Power System Fundamentals, Grid Operat
 
 ## Plugging in payments, SMS and email
 
-Everything is configured in `.env`:
+The easy way: sign in as the owner and open **Admin → Integrations**. Payment gateway, GST percent, SMS and email OTP, video hosting, file storage, AI assistant and push keys are all entered there, take effect at once and need no redeploy. Secret keys are stored encrypted (AES-256, keyed from `AUTH_SECRET`) and are never shown again after saving. A value saved in the admin app overrides the matching environment variable, so the table below is only the fallback. Do not change `AUTH_SECRET` after saving keys, or they will need to be entered again.
 
 | Setting | What it does |
 |---|---|
@@ -95,6 +95,12 @@ Payment code lives in `src/lib/payments/index.ts`; adding another gateway (PayU,
 
 **Video hosting:** Bunny Stream (about $5 per TB, India edge, HLS, token security, DRM option) is the best value. Cloudflare Stream and Vimeo also work. The player streams HLS on every device and shows a moving watermark with the learner's email to discourage screen recording. Unlisted YouTube links also work.
 
+**Uploading videos from the admin app:** in Admin → Integrations → Video hosting, enter the Bunny Stream library ID, API key and CDN hostname (Bunny dashboard → Stream → your library → API). Each video lesson then has an "Upload video" button that sends the file straight from your browser to Bunny (resumable, any size) and fills in the link. In the Bunny library, turn on **MP4 fallback** (Encoding settings) so the mobile apps can save lessons for offline viewing. Without Bunny, uploads go to your R2 bucket as MP4; for that, add a CORS rule on the bucket allowing `PUT` from your site's address.
+
+**Player:** quality selection (Auto/1080p/720p and so on for HLS), speed, 10-second skip, subtitles, picture in picture, full screen, keyboard shortcuts, resume where you left off, Chromecast (Chrome on desktop and Android) and AirPlay (Safari, iPhone, iPad).
+
+**Offline videos (mobile apps):** learners tap "Download for offline" on a lesson; the file is kept in the app's private storage (not in the gallery or Files), listed under Offline videos, and removed after 30 days or on sign out. The Android app blocks screenshots and screen recording and is excluded from device backups. This is strong deterrence, not DRM: someone with a rooted phone could still extract a file. For studio-grade protection use Bunny MediaCage DRM or VdoCipher, which need their native player SDKs.
+
 ## Optional add-ons
 
 - **AI study assistant:** set `ANTHROPIC_API_KEY` (from console.anthropic.com). Every lesson then gets an "Ask the AI study assistant" panel grounded in the lesson text. Uses Claude (`TUTOR_MODEL`, default `claude-opus-5-5`) with server-side fallback enabled, so if the model declines a request the API retries on its default fallback model. Daily limit per learner: `TUTOR_DAILY_LIMIT` (default 30). Admin → AI assistant shows what learners ask.
@@ -118,9 +124,15 @@ No Mac? Codemagic or Ionic Appflow can build and upload the iOS app from this re
 
 Store checklist: Google Play developer account ($25 once), Apple developer account ($99/year), privacy policy URL (`/privacy`), support URL, screenshots (phone and tablet), a demo learner login for the reviewers, and the data-safety / privacy questionnaire (we collect name, email, phone and learning activity; no data sold).
 
-## Admin console
+## Admin app
 
-Overview with 7/30/90-day revenue, watch hours, sign-ups and quiz pass rate · courses with curriculum builder, duplicate, uploads and quiz CSV import with per-question analytics · plans, bundles and discount codes · orders and CSV exports · learner profiles (progress, quiz attempts, grant/revoke access, reset password) · certificates (search, revoke/restore) · doubts · AI assistant questions · announcements and push notifications · business settings and policies · activity log. Instructors (role INSTRUCTOR) see only the courses they own and the doubts.
+`/admin` is its own application with its own layout, navigation and install icon (open it in Chrome and choose "Install app" to get a separate Admin icon on your phone or computer). It shares one backend and database with the learner app, so every change is live immediately.
+
+**Website control:** Home page (announcement bar, headline, buttons, feature cards, testimonials, FAQ, closing banner, show/hide each section) · Dashboard (greeting, welcome text, notice) · Brand (name, tagline, logo) · Pages (create any page such as About or Careers, with a formatted editor, and place it in the menu or footer) · Media library.
+
+**Sales control:** generate single or bulk coupon codes (percent or fixed, limits, expiry, per course or plan), edit, pause, delete, export · record offline sales (cash, bank transfer) · mark orders paid · refund (through Razorpay when connected, and access is removed) · payment gateway and tax in Integrations.
+
+Also: overview with 7/30/90-day revenue, watch hours, sign-ups and quiz pass rate · courses with curriculum builder, duplicate, uploads and quiz CSV import with per-question analytics · plans, bundles and discount codes · orders and CSV exports · learner profiles (progress, quiz attempts, grant/revoke access, reset password) · certificates (search, revoke/restore) · doubts · AI assistant questions · announcements and push notifications · business settings and policies · activity log. Instructors (role INSTRUCTOR) see only the courses they own and the doubts.
 
 ## Tech
 

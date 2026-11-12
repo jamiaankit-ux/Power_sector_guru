@@ -1,18 +1,19 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { PwaRegister } from "@/components/PwaRegister";
-import { NativeBridge } from "@/components/NativeBridge";
 import { isNativeApp } from "@/lib/app-mode";
+import { getSettings } from "@/lib/settings";
 
-export const metadata: Metadata = {
-  title: { default: "Power Sector Academy: Making you ready for AI-enabled Power Sector", template: "%s · Power Sector Academy" },
-  description: "Learn power systems, grid operations, renewables, electricity markets and regulation from industry experts. Video lectures, study material, quizzes and verifiable certificates.",
-  applicationName: "Power Sector Academy",
-  appleWebApp: { capable: true, title: "Power Sector Academy", statusBarStyle: "black-translucent" },
-  icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getSettings();
+  return {
+    title: { default: `${s.siteName}: ${s.tagline}`, template: `%s · ${s.siteName}` },
+    description: s.heroText,
+    applicationName: s.siteName,
+    manifest: "/manifest.webmanifest",
+    appleWebApp: { capable: true, title: s.siteName, statusBarStyle: "black-translucent" },
+    icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [{ media: "(prefers-color-scheme: light)", color: "#1d4ed8" }, { media: "(prefers-color-scheme: dark)", color: "#0a0f1c" }],
@@ -28,12 +29,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" suppressHydrationWarning className={inApp ? "app-mode" : undefined}>
       <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
-      <body className="min-h-screen antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-        {inApp ? <NativeBridge /> : <PwaRegister />}
-      </body>
+      <body className="min-h-screen antialiased">{children}</body>
     </html>
   );
 }

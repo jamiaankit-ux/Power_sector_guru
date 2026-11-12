@@ -6,7 +6,7 @@ import { rateLimit } from "@/lib/ratelimit";
 import { askTutor, tutorDailyLimit, tutorEnabled } from "@/lib/tutor";
 
 export async function POST(req: Request) {
-  if (!tutorEnabled()) return NextResponse.json({ error: "The AI assistant is not switched on yet." }, { status: 503 });
+  if (!(await tutorEnabled())) return NextResponse.json({ error: "The AI assistant is not switched on yet." }, { status: 503 });
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "Please sign in" }, { status: 401 });
   const body = await req.json().catch(() => ({}));
@@ -17,9 +17,10 @@ export async function POST(req: Request) {
   if (!lesson) return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
   const course = lesson.module.course;
   if (!lesson.isPreview && !(await canAccessCourse(user, course))) return NextResponse.json({ error: "Enroll in this course to use the assistant." }, { status: 403 });
+  const limit = await tutorDailyLimit();
   const day = new Date().toISOString().slice(0, 10);
-  if (user.role === "STUDENT" && !(await rateLimit(`tutor:${user.id}:${day}`, tutorDailyLimit(), 86400)))
-    return NextResponse.json({ error: `You have used today's ${tutorDailyLimit()} questions. The limit resets tomorrow.` }, { status: 429 });
+  if (user.role === "STUDENT" && !(await rateLimit(`tutor:${user.id}:${day}`, limit, 86400)))
+    return NextResponse.json({ error: `You have used today's ${limit} questions. The limit resets tomorrow.` }, { status: 429 });
 
   const history = await db.tutorMessage.findMany({ where: { userId: user.id, lessonId }, orderBy: { createdAt: "desc" }, take: 8 });
   const res = await askTutor({

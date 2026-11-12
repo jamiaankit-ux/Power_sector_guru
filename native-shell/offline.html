@@ -1,4 +1,34 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Offline</title></head>
-<body style="margin:0;background:#0a0f1c;color:#e2e8f0;font-family:system-ui;display:grid;place-items:center;height:100vh;text-align:center;padding:24px">
-<div><div style="font-size:48px">⚡</div><h1 style="font-size:20px">You are offline</h1><p style="color:#94a3b8">Power Sector Academy needs an internet connection. Check your connection and try again.</p>
-<button onclick="location.reload()" style="margin-top:12px;background:#1d4ed8;color:#fff;border:0;border-radius:10px;padding:12px 20px;font-size:16px">Try again</button></div></body></html>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Offline</title>
+<style>body{margin:0;background:#0a0f1c;color:#e2e8f0;font-family:system-ui;padding:calc(24px + env(safe-area-inset-top)) 16px 24px}h1{font-size:20px;margin:8px 0}p{color:#94a3b8;font-size:14px}
+.b{background:#1d4ed8;color:#fff;border:0;border-radius:10px;padding:12px 18px;font-size:15px;font-weight:600}.c{display:flex;gap:12px;align-items:center;background:#111a2e;border:1px solid #1e293b;border-radius:14px;padding:14px;margin-top:10px}
+.c div{flex:1;min-width:0}.t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.s{color:#94a3b8;font-size:12px}video{width:100%;border-radius:14px;background:#000;margin-top:12px}.w{position:relative}.w span{position:absolute;left:14px;top:22px;font-size:11px;color:rgba(255,255,255,.3);pointer-events:none}</style></head>
+<body><div style="font-size:40px">⚡</div><h1>You are offline</h1><p>Your saved videos still play. Everything else needs an internet connection.</p>
+<button class="b" onclick="location.href='/'">Try again</button><div id="player"></div><div id="list"></div>
+<script>
+// Lists and plays the videos saved by the app (see src/lib/offline.ts). They live in the app's private storage.
+(async function () {
+  var C = window.Capacitor, F = C && C.Plugins && C.Plugins.Filesystem, list = document.getElementById("list");
+  if (!F) return;
+  try {
+    var r = await F.readFile({ path: "offline/index.json", directory: "LIBRARY", encoding: "utf8" });
+    var items = JSON.parse(r.data).filter(function (i) { return i.expires > Date.now(); });
+    if (!items.length) { list.innerHTML = '<p style="margin-top:20px">No saved videos. When you are online, open a lesson and tap “Download for offline”.</p>'; return; }
+    items.forEach(function (i) {
+      var c = document.createElement("div"); c.className = "c";
+      var d = document.createElement("div"), t = document.createElement("div"), s = document.createElement("div");
+      t.className = "t"; t.textContent = i.title; s.className = "s"; s.textContent = Math.round(i.size / 1e6) + " MB";
+      d.appendChild(t); d.appendChild(s);
+      var b = document.createElement("button"); b.className = "b"; b.textContent = "Play";
+      b.onclick = async function () {
+        var u = await F.getUri({ path: i.file, directory: "LIBRARY" });
+        var p = document.getElementById("player"); p.innerHTML = "";
+        var w = document.createElement("div"); w.className = "w";
+        var v = document.createElement("video"); v.controls = true; v.autoplay = true; v.playsInline = true; v.setAttribute("controlsList", "nodownload"); v.src = C.convertFileSrc(u.uri);
+        var m = document.createElement("span"); m.textContent = i.owner || "";
+        w.appendChild(v); w.appendChild(m); p.appendChild(w); window.scrollTo(0, 0);
+      };
+      c.appendChild(d); c.appendChild(b); list.appendChild(c);
+    });
+  } catch (e) {}
+})();
+</script></body></html>

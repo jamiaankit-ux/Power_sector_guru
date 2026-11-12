@@ -1,13 +1,10 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
+import { getConfig } from "./config";
 
 /** AI study assistant. Enabled when ANTHROPIC_API_KEY is set. */
-export const tutorEnabled = () => !!process.env.ANTHROPIC_API_KEY;
-export const TUTOR_MODEL = process.env.TUTOR_MODEL || "claude-opus-5-5";
-export const tutorDailyLimit = () => Number(process.env.TUTOR_DAILY_LIMIT || 30) || 30;
-
-let client: Anthropic | null = null;
-const getClient = () => (client ??= new Anthropic());
+export const tutorEnabled = async () => !!(await getConfig()).anthropicApiKey;
+export const tutorDailyLimit = async () => Number((await getConfig()).tutorDailyLimit || 30) || 30;
 
 type Turn = { role: "user" | "assistant"; content: string };
 
@@ -27,10 +24,12 @@ ${opts.lessonText.slice(0, 20000)}
 </lesson>`;
 
   const messages = [...opts.history.slice(-8), { role: "user" as const, content: opts.question }];
+  const cfg = await getConfig();
+  const client = new Anthropic({ apiKey: cfg.anthropicApiKey });
   try {
     // Server-side fallback is enabled: if the primary model declines, the API retries on its default fallback model.
-    const res = await getClient().beta.messages.create({
-      model: TUTOR_MODEL,
+    const res = await client.beta.messages.create({
+      model: cfg.tutorModel || "claude-opus-5-5",
       max_tokens: 2000,
       system,
       messages,

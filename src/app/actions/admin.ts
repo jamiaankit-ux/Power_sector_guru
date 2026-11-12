@@ -159,24 +159,61 @@ export async function deleteQuestion(fd: FormData) {
 }
 
 /* ---------- Coupons ---------- */
+const randomCode = (prefix: string, len = 6) => {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no look-alike letters
+  let out = "";
+  for (let i = 0; i < len; i++) out += abc[Math.floor(Math.random() * abc.length)];
+  return (prefix ? prefix + "-" : "") + out;
+};
+
+/** Creates one code, edits one, or bulk-generates many unique single-use codes. */
 export async function saveCoupon(fd: FormData) {
   const me = await requireOwner();
+  const id = s(fd, "id");
   const kind = s(fd, "kind") === "FLAT" ? "FLAT" : "PERCENT";
   const target = s(fd, "target"); // "TYPE:id" or "TYPE" or ""
   const [appliesTo, targetId] = target ? target.split(":") : ["ALL", ""];
-  const code = s(fd, "code").toUpperCase().replace(/\s+/g, "");
-  if (!code || (await db.coupon.findUnique({ where: { code } }))) redirect(`/admin/coupons?error=${encodeURIComponent(code)}`);
-  await db.coupon.create({
-    data: {
-      code, description: s(fd, "description"), kind,
-      value: kind === "FLAT" ? rupees(fd, "value") : Math.min(100, n(fd, "value")), maxDiscount: rupees(fd, "maxDiscount"),
-      minOrder: rupees(fd, "minOrder"), appliesTo: appliesTo || "ALL", targetId: targetId || null, maxRedemptions: n(fd, "maxRedemptions"),
-      perUserLimit: n(fd, "perUserLimit"), validFrom: s(fd, "validFrom") ? new Date(s(fd, "validFrom")) : null,
-      validTo: s(fd, "validTo") ? new Date(s(fd, "validTo") + "T23:59:59") : null,
-    },
-  });
+  const clean = (c: string) => c.toUpperCase().replace(/[^A-Z0-9-]/g, "");
+  const data = {
+    description: s(fd, "description"), kind,
+    value: kind === "FLAT" ? rupees(fd, "value") : Math.max(1, Math.min(100, n(fd, "value"))), maxDiscount: rupees(fd, "maxDiscount"),
+    minOrder: rupees(fd, "minOrder"), appliesTo: appliesTo || "ALL", targetId: targetId || null, maxRedemptions: n(fd, "maxRedemptions"),
+    perUserLimit: n(fd, "perUserLimit"), validFrom: s(fd, "validFrom") ? new Date(s(fd, "validFrom")) : null,
+    validTo: s(fd, "validTo") ? new Date(s(fd, "validTo") + "T23:59:59") : null,
+  };
+  if (id) {
+    const c = await db.coupon.update({ where: { id }, data });
+    await audit(me, "coupon.update", c.code);
+    redirect("/admin/coupons?saved=1");
+  }
+  const count = Math.min(500, Math.max(1, n(fd, "count") || 1));
+  if (count > 1) {
+    const prefix = clean(s(fd, "code")).slice(0, 12);
+    const codes = new Set<string>();
+    while (codes.size < count) codes.add(randomCode(prefix, 7));
+    const taken = new Set((await db.coupon.findMany({ where: { code: { in: [...codes] } }, select: { code: true } })).map((c) => c.code));
+    const fresh = [...codes].filter((c) => !taken.has(c));
+    const batch = `${data.description || "Bulk codes"} · batch ${new Date().toISOString().slice(0, 10)}`;
+    await db.coupon.createMany({ data: fresh.map((code) => ({ ...data, code, description: batch, maxRedemptions: 1, perUserLimit: 1 })) });
+    await audit(me, "coupon.bulk", `${fresh.length} codes · ${batch}`);
+    redirect(`/admin/coupons?made=${fresh.length}&q=${encodeURIComponent(batch)}`);
+  }
+  let code = clean(s(fd, "code"));
+  if (!code) do { code = randomCode("", 8); } while (await db.coupon.findUnique({ where: { code } }));
+  else if (await db.coupon.findUnique({ where: { code } })) redirect(`/admin/coupons?error=${encodeURIComponent(code)}`);
+  await db.coupon.create({ data: { ...data, code } });
   await audit(me, "coupon.create", code);
-  redirect("/admin/coupons");
+  redirect(`/admin/coupons?saved=1&q=${code}`);
+}
+
+export async function deleteCoupon(fd: FormData) {
+  const me = await requireOwner();
+  const c = await db.coupon.findUniqueOrThrow({ where: { id: s(fd, "id") } });
+  // Used codes stay on record for the orders that used them; they are switched off instead.
+  if (c.redeemed > 0) await db.coupon.update({ where: { id: c.id }, data: { active: false } });
+  else await db.coupon.delete({ where: { id: c.id } });
+  await audit(me, c.redeemed > 0 ? "coupon.disable" : "coupon.delete", c.code);
+  revalidatePath("/admin/coupons");
 }
 
 export async function toggleCoupon(fd: FormData) {
@@ -339,10 +376,53 @@ export async function saveSiteSettings(fd: FormData) {
   const { DEFAULT_SETTINGS, saveSettings } = await import("@/lib/settings");
   const values: Record<string, string> = {};
   for (const k of Object.keys(DEFAULT_SETTINGS)) if (fd.has(k)) values[k] = s(fd, k);
+  // On/off switches: an unticked checkbox is not submitted, so the form lists them in __bools.
+  for (const k of fd.getAll("__bools").map(String)) if (k in DEFAULT_SETTINGS) values[k] = fd.get(k) === "on" ? "true" : "false";
   await saveSettings(values);
-  await audit(me, "settings.save", Object.keys(values).join(", "));
+  await audit(me, "website.save", Object.keys(values).join(", "));
   revalidatePath("/", "layout");
-  redirect("/admin/settings?saved=1");
+  const back = s(fd, "__back");
+  redirect(`${back.startsWith("/admin") ? back : "/admin/settings"}?saved=1`);
+}
+
+/* ---------- Integrations (payments, SMS, AI, storage, video, push) ---------- */
+export async function saveIntegrations(fd: FormData) {
+  const me = await requireOwner();
+  const { CONFIG_FIELDS, saveConfig } = await import("@/lib/config");
+  const values: Record<string, string> = {};
+  for (const k of Object.keys(CONFIG_FIELDS)) if (fd.has(k)) values[k] = s(fd, k);
+  for (const k of fd.getAll("__bools").map(String)) if (k in CONFIG_FIELDS) values[k] = fd.get(k) === "on" ? "true" : "false";
+  const clear = fd.getAll("__clear").map(String);
+  await saveConfig(values, clear);
+  // Never log secret values, only which settings changed.
+  await audit(me, "integrations.save", [...Object.keys(values).filter((k) => values[k]), ...clear.map((k) => `cleared ${k}`)].join(", "));
+  revalidatePath("/", "layout");
+  redirect(`/admin/integrations?saved=1${s(fd, "__tab") ? `&tab=${s(fd, "__tab")}` : ""}`);
+}
+
+/* ---------- Website pages ---------- */
+const RESERVED = ["admin", "api", "courses", "learn", "dashboard", "login", "register", "pricing", "checkout", "certificates", "verify", "leaderboard", "profile", "privacy", "terms", "refunds", "install", "offline", "invoice", "forgot-password", "downloads", "icons", "sw.js"];
+export async function savePage(fd: FormData) {
+  const me = await requireOwner();
+  const id = s(fd, "id");
+  const title = s(fd, "title") || "Untitled page";
+  let slug = slugify(s(fd, "slug") || title) || "page";
+  if (RESERVED.includes(slug)) slug += "-page";
+  const clash = await db.page.findUnique({ where: { slug } });
+  if (clash && clash.id !== id) slug += "-" + Date.now().toString(36).slice(-4);
+  const data = { title, slug, summary: s(fd, "summary"), body: String(fd.get("body") ?? ""), published: fd.get("published") === "on", showInNav: fd.get("showInNav") === "on", showInFooter: fd.get("showInFooter") === "on", order: n(fd, "order") };
+  const page = id ? await db.page.update({ where: { id }, data }) : await db.page.create({ data });
+  await audit(me, id ? "page.update" : "page.create", `${title} (/${slug})`);
+  revalidatePath("/", "layout");
+  redirect(`/admin/site/pages/${page.id}?saved=1`);
+}
+
+export async function deletePage(fd: FormData) {
+  const me = await requireOwner();
+  const p = await db.page.delete({ where: { id: s(fd, "id") } });
+  await audit(me, "page.delete", p.title);
+  revalidatePath("/", "layout");
+  redirect("/admin/site/pages");
 }
 
 /* ---------- Push notifications ---------- */
@@ -362,4 +442,70 @@ export async function sendNotification(fd: FormData) {
   if (fd.get("announce") === "on") await db.announcement.create({ data: { title, body } });
   await audit(me, "push.send", `${title} · ${result}`);
   redirect("/admin/notifications?ok=" + encodeURIComponent(result));
+}
+
+/* ---------- Orders: offline sales, manual confirmation, refunds ---------- */
+export async function createManualOrder(fd: FormData) {
+  const me = await requireOwner();
+  const who = s(fd, "learner").toLowerCase();
+  const { normalizePhone } = await import("@/lib/auth");
+  const user = await db.user.findFirst({ where: who.includes("@") ? { email: who } : { phone: normalizePhone(who) } });
+  if (!user) redirect("/admin/orders?error=" + encodeURIComponent("No learner found with that email or mobile number. Ask them to register first."));
+  const [type, itemId] = s(fd, "item").split(":");
+  const { loadItem, fulfillOrder } = await import("@/lib/pricing");
+  const item = type && itemId ? await loadItem(type as "COURSE" | "BUNDLE" | "PLAN", itemId) : null;
+  if (!item) redirect("/admin/orders?error=" + encodeURIComponent("Choose what the learner bought."));
+  const total = fd.get("amount") === "" ? item!.price : rupees(fd, "amount");
+  const { getConfig } = await import("@/lib/config");
+  const rate = Number((await getConfig()).taxPercent || 0) / 100;
+  const order = await db.order.create({
+    data: { userId: user!.id, itemType: type, itemId, itemTitle: item!.title, amount: item!.price, discount: Math.max(0, item!.price - total), tax: Math.round(total - total / (1 + rate)), total, provider: "offline", note: s(fd, "note") || null },
+  });
+  await fulfillOrder(order.id, s(fd, "reference") || `offline_${Date.now()}`);
+  await audit(me, "order.manual", `${user!.name} · ${item!.title} · ₹${total / 100}`);
+  redirect("/admin/orders?ok=" + encodeURIComponent(`Order recorded and access given to ${user!.name}.`));
+}
+
+export async function markOrderPaid(fd: FormData) {
+  const me = await requireOwner();
+  const { fulfillOrder } = await import("@/lib/pricing");
+  const o = await db.order.findUniqueOrThrow({ where: { id: s(fd, "id") } });
+  if (o.status === "PAID" || o.status === "REFUNDED") return;
+  await fulfillOrder(o.id, o.providerRef ?? `manual_${Date.now()}`);
+  await db.order.update({ where: { id: o.id }, data: { note: "Confirmed manually by admin" } });
+  await audit(me, "order.mark_paid", `${o.itemTitle} · ${o.id}`);
+  revalidatePath("/admin/orders");
+}
+
+export async function refundOrder(fd: FormData) {
+  const me = await requireOwner();
+  const o = await db.order.findUniqueOrThrow({ where: { id: s(fd, "id") } });
+  if (o.status !== "PAID") return;
+  const { refundPayment } = await import("@/lib/payments");
+  let ref: string | null = null;
+  try {
+    ref = await refundPayment(o);
+  } catch (e) {
+    redirect("/admin/orders?error=" + encodeURIComponent((e as Error).message));
+  }
+  await db.order.update({ where: { id: o.id }, data: { status: "REFUNDED", refundedAt: new Date(), note: [s(fd, "reason"), ref ? `refund ${ref}` : "refund recorded; return the money yourself"].filter(Boolean).join(" · ") } });
+  // Take back what the order unlocked.
+  if (o.itemType === "COURSE") await db.enrollment.deleteMany({ where: { userId: o.userId, courseId: o.itemId, source: "PURCHASE" } });
+  else if (o.itemType === "BUNDLE") {
+    const ids = (await db.bundleCourse.findMany({ where: { bundleId: o.itemId } })).map((b) => b.courseId);
+    await db.enrollment.deleteMany({ where: { userId: o.userId, courseId: { in: ids }, source: "BUNDLE" } });
+  } else await db.subscription.updateMany({ where: { userId: o.userId, planId: o.itemId, currentPeriodEnd: { gt: new Date() } }, data: { currentPeriodEnd: new Date() } });
+  await audit(me, "order.refund", `${o.itemTitle} · ₹${o.total / 100} · ${ref ?? "manual"}`);
+  redirect("/admin/orders?ok=" + encodeURIComponent(ref ? "Refund sent through Razorpay and access removed." : "Order marked refunded and access removed. Remember to return the money yourself."));
+}
+
+/* ---------- Media library ---------- */
+export async function deleteMedia(fd: FormData) {
+  const me = await requireAdmin();
+  const m = await db.media.findUniqueOrThrow({ where: { id: s(fd, "id") } });
+  if (m.store === "database" && m.ref) await db.storedFile.deleteMany({ where: { id: m.ref } });
+  else { const { deleteRemote } = await import("@/lib/video"); await deleteRemote(m.store, m.ref); }
+  await db.media.delete({ where: { id: m.id } });
+  await audit(me, "media.delete", m.name);
+  revalidatePath("/admin/media");
 }

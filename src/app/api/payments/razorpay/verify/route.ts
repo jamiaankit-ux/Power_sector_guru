@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const b = await req.json();
   const order = await db.order.findFirst({ where: { id: b.orderId, userId: user.id } });
   if (!order || order.providerRef !== b.razorpay_order_id) return NextResponse.json({ ok: false }, { status: 400 });
-  if (!verifyRazorpay(b.razorpay_order_id, b.razorpay_payment_id, b.razorpay_signature)) {
+  if (!(await verifyRazorpay(b.razorpay_order_id, b.razorpay_payment_id, b.razorpay_signature))) {
     await db.order.update({ where: { id: order.id }, data: { status: "FAILED" } });
     return NextResponse.json({ ok: false }, { status: 400 });
   }
