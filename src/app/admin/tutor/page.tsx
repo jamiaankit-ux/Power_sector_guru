@@ -21,7 +21,7 @@ export default async function TutorAdmin() {
   return (
     <div>
       <h1 className="h-section">AI study assistant</h1>
-      <p className="muted mt-1 text-sm">{tutorEnabled() ? `On. Each learner can ask up to ${tutorDailyLimit()} questions a day (change with TUTOR_DAILY_LIMIT).` : "Off. Add ANTHROPIC_API_KEY on Render to switch it on."} What learners ask shows you where lessons need more explanation.</p>
+      <p className="muted mt-1 text-sm">{(await tutorEnabled()) ? `On. Each learner can ask up to ${await tutorDailyLimit()} questions a day.` : "Off. Add your Anthropic API key in Integrations to switch it on."} What learners ask shows you where lessons need more explanation.</p>
       <div className="mt-4 flex gap-4 text-sm"><span className="chip">{count} questions in 30 days</span><span className="chip">{learners.length} learners used it</span></div>
       <ul className="card mt-6 divide-y divide-slate-100 text-sm dark:divide-slate-800">
         {questions.map((q) => (

@@ -57,3 +57,28 @@ body { -webkit-tap-highlight-color: transparent; padding-bottom: env(safe-area-i
 
 /* Inside the Play Store / App Store apps: no prices or purchase links (store billing rules). */
 html.app-mode .hide-in-app { display: none !important; }
+.prose-pa img { @apply my-4 h-auto max-w-full rounded-xl; }
+.prose-pa hr { @apply my-8 border-slate-200 dark:border-slate-700; }
+.prose-pa h2, .prose-pa h3 { scroll-margin-top: 5rem; }
+
+/* Video player sliders */
+.player-range::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 9999px; background: #fbbf24; box-shadow: 0 0 0 3px rgb(0 0 0 / 0.25); }
+.player-range::-moz-range-thumb { height: 14px; width: 14px; border: 0; border-radius: 9999px; background: #fbbf24; }
+.player-range::-webkit-slider-runnable-track { background: transparent; }
+.player-range::-moz-range-track { background: transparent; }
+video::cue { background: rgb(0 0 0 / 0.7); font-size: 1.1em; }
+.show-in-app { display: none !important; }
+html.app-mode .show-in-app { display: inline-flex !important; }
+
+/* Reading mode */
+.prose-pa.reading { line-height: 1.8; }
+.prose-pa.reading p { margin: 1.1em 0; }
+.prose-pa.reading h1 { font-size: 1.7em; } .prose-pa.reading h2 { font-size: 1.35em; } .prose-pa.reading h3 { font-size: 1.15em; }
+.prose-pa.reading code { font-size: 0.88em; }
+.reading-serif, .reading-serif h1, .reading-serif h2, .reading-serif h3 { font-family: Charter, "Iowan Old Style", "Palatino Linotype", Georgia, "Noto Serif", serif; }
+.reader-light { background: #fff; } .reader-light .prose-pa, .reader-light .prose-pa td { color: #334155; } .reader-light .prose-pa :is(h1, h2, h3, strong) { color: #0f172a; }
+.reader-sepia { background: #f4ecd8; } .reader-sepia .prose-pa, .reader-sepia .prose-pa td { color: #4a3f2c; } .reader-sepia .prose-pa :is(h1, h2, h3, strong) { color: #33291a; }
+.reader-sepia .prose-pa :is(th, code) { background: #e9dfc6; color: #33291a; } .reader-sepia .prose-pa :is(table, td) { border-color: #dccfae; } .reader-sepia .prose-pa blockquote { background: #ecdfbf; color: #33291a; }
+.reader-dark { background: #111827; } .reader-dark .prose-pa, .reader-dark .prose-pa td { color: #cbd5e1; } .reader-dark .prose-pa :is(h1, h2, h3, strong) { color: #fff; }
+.reader-dark .prose-pa :is(th, code) { background: #1f2937; color: #e2e8f0; } .reader-dark .prose-pa :is(table, td) { border-color: #334155; } .reader-dark .prose-pa blockquote { background: rgb(245 158 11 / 0.12); color: #fde68a; }
+.reader-light .prose-pa :is(th, code) { background: #f1f5f9; color: #0f172a; } .reader-light .prose-pa :is(table, td) { border-color: #e2e8f0; } .reader-light .prose-pa blockquote { background: #fffbeb; color: #1e293b; }

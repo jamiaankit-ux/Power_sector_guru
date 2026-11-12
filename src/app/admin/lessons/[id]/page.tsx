@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import { parseList } from "@/lib/format";
 import { addQuestion, deleteQuestion, importQuestions, saveLesson } from "@/app/actions/admin";
 import { UploadField } from "@/components/admin/UploadField";
+import { MarkdownEditor } from "@/components/admin/MarkdownEditor";
+import { VideoUpload } from "@/components/admin/VideoUpload";
 
 export default async function EditLesson({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ imported?: string }> }) {
   const { id } = await params;
@@ -31,8 +33,8 @@ export default async function EditLesson({ params, searchParams }: { params: Pro
         <input type="hidden" name="id" value={l.id} />
         <div className="sm:col-span-2"><label className="label">Title</label><input name="title" defaultValue={l.title} className="input" required /></div>
         {l.type === "VIDEO" && (
-          <div className="sm:col-span-2"><label className="label">Video link</label><input name="videoUrl" defaultValue={l.videoUrl ?? ""} className="input" placeholder="MP4 link from your storage/CDN, or a YouTube (unlisted) link" />
-            <p className="muted mt-1 text-xs">Recommended: upload to a video host (Bunny Stream, Cloudflare Stream, Vimeo, AWS S3 + CloudFront) and paste the MP4 link here. YouTube links also work with watch-time tracking.</p></div>
+          <div className="sm:col-span-2"><label className="label">Video</label><VideoUpload name="videoUrl" defaultValue={l.videoUrl} />
+            <p className="muted mt-1 text-xs">Uploads go to your video host (set it up once in Payments and integrations). Learners get quality selection, speed control, Chromecast and AirPlay, and offline viewing in the phone apps.</p></div>
         )}
         <div><label className="label">Duration (minutes)</label><input name="durationMin" type="number" min="0" step="0.5" defaultValue={l.durationSec / 60} className="input" /></div>
         <label className="flex items-center gap-2 self-end pb-3 text-sm"><input type="checkbox" name="isPreview" defaultChecked={l.isPreview} />Free preview for everyone</label>
@@ -42,8 +44,7 @@ export default async function EditLesson({ params, searchParams }: { params: Pro
           <div><label className="label">Max attempts (0 = unlimited)</label><input name="maxAttempts" type="number" defaultValue={l.quiz?.maxAttempts ?? 0} className="input" /></div>
         </>}
         <div className="sm:col-span-2"><label className="label">{l.type === "READING" ? "Study material (Markdown)" : "Notes shown below the lesson (Markdown)"}</label>
-          <textarea name="content" rows={l.type === "READING" ? 16 : 6} defaultValue={l.content} className="input font-mono text-[13px]" />
-          <p className="muted mt-1 text-xs">Supports # headings, **bold**, lists, | tables |, &gt; key takeaways and links.</p></div>
+          <MarkdownEditor name="content" defaultValue={l.content} rows={l.type === "READING" ? 18 : 6} /></div>
         <div><label className="label">Downloadable file (PDF, slides)</label><UploadField name="resourceUrl" defaultValue={l.resourceUrl} accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.csv,.zip,image/*" placeholder="https://… or upload" /></div>
         <div><label className="label">File label</label><input name="resourceName" defaultValue={l.resourceName ?? ""} className="input" placeholder="Lecture slides (PDF)" /></div>
         <div className="sm:col-span-2"><button className="btn-primary">Save lesson</button></div>

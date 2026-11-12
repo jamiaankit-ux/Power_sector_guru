@@ -1,11 +1,26 @@
-// Minimal, safe Markdown to HTML for study material (headings, lists, tables, quotes, bold, code, links).
+// Minimal, safe Markdown to HTML for study material (headings, lists, tables, quotes, bold, code, links, images).
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const inline = (s: string) =>
   esc(s)
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/(^|[^*])\*(?!\s)(.+?)\*/g, "$1<em>$2</em>")
     .replace(/`(.+?)`/g, "<code>$1</code>")
-    .replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    .replace(/!\[([^\]]*)\]\(((?:https?:\/\/|\/)[^\s)"]+)\)/g, '<img src="$2" alt="$1" loading="lazy" />')
+    .replace(/\[(.+?)\]\((https?:\/\/[^\s)"]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\[(.+?)\]\((\/[^\s)"]*)\)/g, '<a href="$2">$1</a>');
+
+export const slugify = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "section";
+
+/** Headings (## and ###) for a table of contents. */
+export function headings(src: string) {
+  return src.replace(/\r/g, "").split("\n").flatMap((l) => {
+    const h = l.match(/^(#{2,3})\s+(.*)/);
+    return h ? [{ level: h[1].length, text: h[2].replace(/[*`]/g, ""), id: slugify(h[2]) }] : [];
+  });
+}
+
+/** Rough reading time in minutes at 200 words a minute. */
+export const readingMinutes = (src: string) => Math.max(1, Math.round(src.split(/\s+/).filter(Boolean).length / 200));
 
 export function markdown(src: string) {
   const lines = src.replace(/\r/g, "").split("\n");
@@ -15,7 +30,8 @@ export function markdown(src: string) {
     const l = lines[i];
     if (!l.trim()) { i++; continue; }
     const h = l.match(/^(#{1,3})\s+(.*)/);
-    if (h) { out.push(`<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`); i++; continue; }
+    if (h) { out.push(`<h${h[1].length} id="${slugify(h[2])}">${inline(h[2])}</h${h[1].length}>`); i++; continue; }
+    if (/^---+$/.test(l.trim())) { out.push("<hr />"); i++; continue; }
     if (l.startsWith(">")) {
       const buf: string[] = [];
       while (i < lines.length && lines[i].startsWith(">")) buf.push(lines[i++].replace(/^>\s?/, ""));

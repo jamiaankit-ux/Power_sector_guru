@@ -1,6 +1,7 @@
 import "server-only";
 import { SignJWT, importPKCS8 } from "jose";
 import { db } from "./db";
+import { getConfig } from "./config";
 
 /**
  * Push notifications through Firebase Cloud Messaging (HTTP v1), which delivers to Android and,
@@ -9,8 +10,8 @@ import { db } from "./db";
  */
 type ServiceAccount = { project_id: string; client_email: string; private_key: string };
 
-function serviceAccount(): ServiceAccount | null {
-  const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
+async function serviceAccount(): Promise<ServiceAccount | null> {
+  const raw = (await getConfig()).firebaseServiceAccount;
   if (!raw) return null;
   try {
     return JSON.parse(raw.trim().startsWith("{") ? raw : Buffer.from(raw, "base64").toString("utf8"));
@@ -19,7 +20,7 @@ function serviceAccount(): ServiceAccount | null {
   }
 }
 
-export const pushConfigured = () => !!serviceAccount();
+export const pushConfigured = async () => !!(await serviceAccount());
 
 async function accessToken(sa: ServiceAccount) {
   const key = await importPKCS8(sa.private_key, "RS256");
@@ -38,7 +39,7 @@ async function accessToken(sa: ServiceAccount) {
 }
 
 export async function sendPush(title: string, body: string, url = "/dashboard", userIds?: string[]) {
-  const sa = serviceAccount();
+  const sa = await serviceAccount();
   if (!sa) throw new Error("Push notifications are not configured (FIREBASE_SERVICE_ACCOUNT).");
   const tokens = await db.pushToken.findMany({ where: userIds ? { userId: { in: userIds } } : {} });
   const token = await accessToken(sa);

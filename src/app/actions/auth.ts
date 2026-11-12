@@ -70,7 +70,7 @@ export async function loginWithPassword(_: FormState, fd: FormData): Promise<For
 export async function requestOtp(_: FormState, fd: FormData): Promise<FormState> {
   const id = parseIdentifier(String(fd.get("identifier") || ""));
   if (!id) return { error: "Enter your email address or 10 digit mobile number" };
-  if (!otpAvailable()) return { error: "One-time codes are not available yet. Please sign in with your password." };
+  if (!(await otpAvailable())) return { error: "One-time codes are not available yet. Please sign in with your password." };
   if (!(await rateLimit(`otp:${await clientIp()}`, 10, 900))) return { error: SLOW_DOWN };
   const user = await db.user.findUnique({ where: id.kind === "email" ? { email: id.value } : { phone: id.value } });
   if (!user) return { error: "No account found. Please register first." };
@@ -122,7 +122,7 @@ export async function updateProfile(_: FormState, fd: FormData): Promise<FormSta
 export async function requestReset(_: FormState, fd: FormData): Promise<FormState> {
   const id = parseIdentifier(String(fd.get("identifier") || ""));
   if (!id) return { error: "Enter your email address or 10 digit mobile number" };
-  if (!otpAvailable()) return { error: "Password reset by code is not switched on yet. Please contact support and we will reset it for you." };
+  if (!(await otpAvailable())) return { error: "Password reset by code is not switched on yet. Please contact support and we will reset it for you." };
   if (!(await rateLimit(`reset:${await clientIp()}`, 10, 900))) return { error: SLOW_DOWN };
   const user = await db.user.findUnique({ where: id.kind === "email" ? { email: id.value } : { phone: id.value } });
   // Same reply whether or not the account exists, so the form can't be used to discover accounts.

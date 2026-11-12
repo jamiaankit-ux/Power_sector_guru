@@ -1,5 +1,6 @@
 import "server-only";
 import { db } from "./db";
+import { getConfig } from "./config";
 
 export type ItemType = "COURSE" | "BUNDLE" | "PLAN";
 
@@ -51,7 +52,7 @@ export async function quote(type: ItemType, id: string, couponCode: string | und
     } else coupon = null;
   }
   const total = item.price - discount;
-  const rate = Number(process.env.TAX_PERCENT || 0) / 100;
+  const rate = Number((await getConfig()).taxPercent || 0) / 100;
   const tax = Math.round(total - total / (1 + rate));
   return { item, amount: item.price, discount, tax, total, coupon, couponError };
 }

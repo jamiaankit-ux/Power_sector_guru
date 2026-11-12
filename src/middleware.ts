@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, readSession } from "@/lib/session";
 
-const PROTECTED = ["/dashboard", "/learn", "/admin", "/profile", "/checkout"];
+const PROTECTED = ["/dashboard", "/learn", "/admin", "/profile", "/checkout", "/downloads"];
 // Pages the Play Store / App Store apps must not show (purchases happen on the website).
 const WEB_ONLY = ["/pricing", "/checkout", "/install"];
 const APP_UA_MARKER = "PowerSectorAcademyApp";
@@ -23,4 +23,4 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: ["/dashboard/:path*", "/learn/:path*", "/admin/:path*", "/profile", "/checkout/:path*", "/pricing/:path*", "/install"] };
+export const config = { matcher: ["/dashboard/:path*", "/learn/:path*", "/admin/:path*", "/profile", "/checkout/:path*", "/pricing/:path*", "/install", "/downloads"] };

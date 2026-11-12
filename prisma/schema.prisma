@@ -290,6 +290,8 @@ model Order {
   providerRef String?
   createdAt   DateTime @default(now())
   paidAt      DateTime?
+  refundedAt  DateTime?
+  note        String? // admin note (offline payment reference, refund reason)
 }
 
 model Note {
@@ -386,5 +388,33 @@ model StoredFile {
   contentType String
   size        Int
   data        Bytes
+  createdAt   DateTime @default(now())
+}
+
+// Custom website pages the owner writes in the admin app (About, Contact, FAQs, ...)
+model Page {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
+  summary      String   @default("")
+  body         String   @default("") // Markdown
+  published    Boolean  @default(false)
+  showInNav    Boolean  @default(false)
+  showInFooter Boolean  @default(true)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Everything uploaded through the admin app (files, images, videos), for the media library
+model Media {
+  id          String   @id @default(cuid())
+  name        String
+  url         String
+  contentType String   @default("")
+  size        Int      @default(0)
+  kind        String   @default("FILE") // FILE | IMAGE | VIDEO
+  store       String   @default("database") // database | bucket | bunny
+  ref         String? // StoredFile id, bucket key or Bunny video id
   createdAt   DateTime @default(now())
 }
