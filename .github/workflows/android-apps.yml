@@ -1,0 +1,116 @@
+name: Android apps
+
+# Builds the Android apps and publishes the learner app at a fixed public download link:
+#   https://github.com/jamiaankit-ux/Power_sector_guru/releases/download/android-app/power-sector-academy.apk
+#
+# With the upload key saved as repository secrets (ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD) the
+# apps are release-signed and the run also produces the Play Store bundle (.aab). Without the secrets it
+# falls back to a debug-signed test build.
+#
+# The admin app (PSA Admin) is never published; download it from the run's files (owner sign-in needed).
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "android/**"
+      - "native-shell/**"
+      - "capacitor.config.ts"
+      - "package.json"
+      - "scripts/android-admin-variant.sh"
+      - ".github/workflows/android-apps.yml"
+  pull_request:
+    paths:
+      - "android/**"
+      - "capacitor.config.ts"
+      - "scripts/android-admin-variant.sh"
+      - ".github/workflows/android-apps.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: learner
+            name: power-sector-academy
+          - variant: admin
+            name: psa-admin
+    env:
+      APP_VARIANT: ${{ matrix.variant }}
+      HAS_KEY: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      VERSION_CODE: ${{ github.run_number }}
+      VERSION_NAME: 1.0.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci --ignore-scripts
+      - name: Switch to the admin app
+        if: matrix.variant == 'admin'
+        run: |
+          command -v convert >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick)
+          ./scripts/android-admin-variant.sh
+      - run: npx cap sync android
+      - name: Build (release-signed)
+        if: env.HAS_KEY == 'true'
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          export ANDROID_KEYSTORE_FILE="$RUNNER_TEMP/upload.jks"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$ANDROID_KEYSTORE_FILE"
+          chmod +x gradlew
+          ./gradlew assembleRelease bundleRelease --no-daemon
+          rm -f "$ANDROID_KEYSTORE_FILE"
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/out/${{ matrix.name }}.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "$GITHUB_WORKSPACE/out/${{ matrix.name }}-play-store.aab"
+      - name: Build (test, debug-signed)
+        if: env.HAS_KEY != 'true'
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/out/${{ matrix.name }}.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: out/
+          if-no-files-found: error
+
+  # Puts the learner app at the fixed public link so it can be shared and installed in one tap.
+  publish:
+    needs: build
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: power-sector-academy
+          path: out
+      - name: Publish the learner app
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view android-app >/dev/null 2>&1 || gh release create android-app --target "${{ github.sha }}" \
+            --title "Power Sector Academy for Android" \
+            --notes "Download power-sector-academy.apk on your Android phone, open it and tap Install. Updated automatically with each new build."
+          gh release upload android-app out/power-sector-academy.apk --clobber
