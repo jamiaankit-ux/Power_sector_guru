@@ -19,6 +19,7 @@ on:
       - "package.json"
       - "scripts/android-admin-variant.sh"
       - "scripts/android-smoke-test.sh"
+      - "scripts/app-shell.mjs"
       - ".github/workflows/android-apps.yml"
   pull_request:
     paths:
@@ -26,6 +27,7 @@ on:
       - "capacitor.config.ts"
       - "scripts/android-admin-variant.sh"
       - "scripts/android-smoke-test.sh"
+      - "scripts/app-shell.mjs"
       - ".github/workflows/android-apps.yml"
 
 permissions:
@@ -65,7 +67,7 @@ jobs:
         run: |
           command -v convert >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick)
           ./scripts/android-admin-variant.sh
-      - run: npx cap sync android
+      - run: node scripts/app-shell.mjs && npx cap sync android
       - name: Build (release-signed)
         if: env.HAS_KEY == 'true'
         working-directory: android
@@ -105,6 +107,13 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: apks
+      - name: What the live site answers to the apps
+        run: |
+          UA="Mozilla/5.0 (Linux; Android 14; Pixel 7; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/126.0 Mobile Safari/537.36"
+          for p in / /admin "/login?next=%2Fadmin" /icon.svg; do
+            echo "== $p"
+            curl -sS -m 120 -o /dev/null -D - -A "$UA PowerSectorAcademyAdmin" -w "time %{time_total}s\n" "https://power-academy.onrender.com$p" | grep -iE "^HTTP|^location|^time|^x-render|^content-type" || true
+          done
       - name: Enable hardware acceleration for the emulator
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
