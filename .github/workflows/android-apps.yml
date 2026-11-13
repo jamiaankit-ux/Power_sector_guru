@@ -129,6 +129,8 @@ jobs:
           script: |
             ./scripts/android-smoke-test.sh apks/power-sector-academy/power-sector-academy.apk in.powersectoracademy.app "Explore courses|Sign in|Courses"
             ./scripts/android-smoke-test.sh apks/psa-admin/psa-admin.apk in.powersectoracademy.admin "Welcome back|Sign in|Dashboard"
+            ./scripts/android-smoke-test.sh apks/psa-admin/psa-admin.apk in.powersectoracademy.admin "Welcome back|Sign in|Dashboard" recover
+            ./scripts/android-smoke-test.sh apks/power-sector-academy/power-sector-academy.apk in.powersectoracademy.app "Explore courses|Sign in|Courses" recover
 
   # Puts the learner app at the fixed public link so it can be shared and installed in one tap.
   publish:
