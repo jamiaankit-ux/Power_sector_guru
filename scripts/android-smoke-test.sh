@@ -25,9 +25,16 @@ fi
 adb shell am start -W -n "$PKG/$ACTIVITY" || { echo "::error::Could not start $PKG"; exit 1; }
 
 if [ "$MODE" = "recover" ]; then
-  sleep 15; TEXT=$(screen); echo "[no connection] on screen: ${TEXT:0:300}"
+  SEEN=""
+  for i in $(seq 1 8); do
+    sleep 8; TEXT=$(screen); echo "[no connection, $((i*8))s] on screen: ${TEXT:0:300}"
+    if echo "$TEXT" | grep -Eqi "offline|Connecting"; then SEEN=1; break; fi
+  done
   adb shell cmd connectivity airplane-mode disable
-  if ! echo "$TEXT" | grep -Eqi "offline|Connecting"; then echo "::error::$PKG did not show its fallback page without a connection"; exit 1; fi
+  if [ -z "$SEEN" ]; then
+    adb logcat -d -v brief | grep -E "E/AndroidRuntime|FATAL|D/Capacitor\(|W/Capacitor|E/Capacitor|chromium" | tail -40
+    echo "::error::$PKG did not show its fallback page without a connection"; exit 1
+  fi
   echo "Connection restored; the app should now open by itself."
 fi
 
