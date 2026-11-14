@@ -178,6 +178,10 @@ class Lecture:
             x, y, w, h, s = self.slide_place(page)
             a, b, c, d = m["rect"]
             return (x + a * w, y + b * h, x + c * w, y + d * h)
+        if "pt" in m:  # slide points (the PDF page's own units), for pictures and charts
+            x, y, w, h, s = self.slide_place(page)
+            a, b, c, d = m["pt"]
+            return (x + a * s, y + b * s, x + c * s, y + d * s)
         if "find" in m:
             pg = self.page(page)
             x, y, w, h, s = self.slide_place(page)
@@ -330,6 +334,8 @@ class Painter:
             return ease_out((t - at) / 0.6)
 
         sp, x = seg.spec, 150 * K
+        if sp.get("illustration") == "battery":
+            self.battery(d, W * 0.80, H * 0.47, 330 * K, t)
         a = appear(0.15)
         if a > 0:
             d.rounded_rectangle((x, H * 0.24 - (1 - a) * 30 * K, x + 120 * K * a, H * 0.24 + 8 * K - (1 - a) * 30 * K), radius=4 * K, fill=VOLT + (int(255 * a),))
@@ -365,9 +371,44 @@ class Painter:
                         d.text((x + 56 * K + (1 - a) * 40 * K, y + i * f.size * 1.25), line, font=f, fill=(241, 245, 249, int(255 * a)))
                 y += len(lines) * f.size * 1.25 + 26 * K
             if sp.get("footer"):
-                a = appear(sp.get("footer_at", 1.2))
+                fa = sp.get("footer_at", 1.2)
+                a = appear(LEAD + self.L._word_time(seg, fa, 0)[0] if isinstance(fa, str) else fa)
                 d.text((x, H * 0.84), sp["footer"], font=font("s", 30 * K), fill=(147, 197, 253, int(255 * a)))
         return img
+
+    def battery(self, d, cx, cy, size, t):
+        """A battery that charges up on the title card, with a lightning bolt and a grid line feeding it."""
+        K = self.K
+        a = ease_out((t - 0.4) / 0.8)
+        if a <= 0:
+            return
+        w, h = size * 0.62, size
+        x0, y0 = cx - w / 2, cy - h / 2 + (1 - a) * 40 * K
+        al = int(255 * a)
+        # grid line and pylon dots feeding the battery
+        for i in range(5):
+            px = x0 - 260 * K + i * 52 * K
+            d.ellipse((px - 5 * K, cy - 5 * K, px + 5 * K, cy + 5 * K), fill=(147, 197, 253, int(al * 0.6)))
+        flow = (t * 1.2) % 1
+        d.line([(x0 - 270 * K, cy), (x0 - 10 * K, cy)], fill=(59, 130, 246, int(al * 0.5)), width=int(4 * K))
+        fx = x0 - 270 * K + flow * 260 * K
+        d.ellipse((fx - 9 * K, cy - 9 * K, fx + 9 * K, cy + 9 * K), fill=VOLT + (al,))
+        d.rounded_rectangle((cx - w * 0.18, y0 - 26 * K, cx + w * 0.18, y0 + 4 * K), radius=8 * K, fill=(203, 213, 225, al))
+        d.rounded_rectangle((x0, y0, x0 + w, y0 + h), radius=34 * K, outline=(226, 232, 240, al), width=int(12 * K), fill=(15, 32, 74, al))
+        level = min(0.85, max(0, (t - 0.8) / 3.5)) if t > 0.8 else 0
+        cells = 5
+        gap, inner = 12 * K, 24 * K
+        ch = (h - 2 * inner - (cells - 1) * gap) / cells
+        for i in range(cells):
+            fill_from = i / cells
+            if level > fill_from:
+                yb = y0 + h - inner - (i + 1) * ch - i * gap
+                col = (34, 197, 94) if i < 3 else VOLT
+                d.rounded_rectangle((x0 + inner, yb, x0 + w - inner, yb + ch), radius=10 * K, fill=col + (al,))
+        bolt = [(18, 4), (8, 18), (15, 18), (13, 28), (24, 13), (17, 13), (18, 4)]
+        bs = h * 0.42
+        d.polygon([(cx - bs / 2 + px / 32 * bs, cy - bs / 2 + py / 32 * bs + (1 - a) * 40 * K) for px, py in bolt], fill=(255, 255, 255, int(al * 0.92)))
+        d.text((cx, y0 + h + 40 * K), f"{int(level / 0.85 * 100)}%", font=font("b", 34 * K), fill=(203, 213, 225, al), anchor="mm")
 
     # marks -----------------------------------------------------------------
     def stroke(self, img, pts, color, width, alpha=255):
