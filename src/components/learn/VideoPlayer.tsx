@@ -96,24 +96,7 @@ function Player({ lessonId, url, title, startAt, watermark, api }: Props & Api) 
     const v = video.current; if (!v) return;
     setErr(""); setLevels([]); setSubs([]);
     let dead = false;
-    if (isHls(url) && !v.canPlayType("application/vnd.apple.mpegurl")) {
-      import("hls.js").then(({ default: H }) => {
-        if (dead || !H.isSupported()) return;
-        const h = new H({ startPosition: startAt > 5 ? startAt : -1, capLevelToPlayerSize: true });
-        hls.current = h;
-        h.on(H.Events.MANIFEST_PARSED, () => {
-          const seen = new Set<number>();
-          setLevels(h.levels.map((l, index) => ({ index, height: l.height })).filter((l) => l.height && !seen.has(l.height) && seen.add(l.height)).sort((a, b) => b.height - a.height));
-          setSubs(h.subtitleTracks.map((s, index) => ({ index, name: s.name || s.lang || `Track ${index + 1}` })));
-          // Subtitles are on by default when the video has them, unless the learner switched them off before.
-          const want = h.subtitleTracks.length && prefs().subs !== false ? 0 : -1;
-          h.subtitleTrack = want; h.subtitleDisplay = want >= 0; setSub(want);
-        });
-        h.on(H.Events.LEVEL_SWITCHED, (_, d) => setAutoHeight(h.levels[d.level]?.height ?? 0));
-        h.on(H.Events.ERROR, (_, d) => { if (d.fatal) { if (d.type === H.ErrorTypes.NETWORK_ERROR) h.startLoad(); else if (d.type === H.ErrorTypes.MEDIA_ERROR) h.recoverMediaError(); else setErr("This video could not be played."); } });
-        h.loadSource(url); h.attachMedia(v);
-      });
-    } else {
+    const native = () => {
       v.src = url;
       // Safari / iPhone play HLS natively: list its subtitle tracks for the same menu.
       v.textTracks.onaddtrack = () => {
@@ -123,7 +106,32 @@ function Player({ lessonId, url, title, startAt, watermark, api }: Props & Api) 
         tracks.forEach((t, i) => { t.mode = i === want ? "showing" : "disabled"; });
         setSub(want);
       };
-    }
+    };
+    // Apple devices keep native HLS (it is what AirPlay needs). Everywhere else hls.js gives the quality and subtitle menus,
+    // even where the browser could play HLS by itself (newer Chrome), because the built-in player hides those choices.
+    const apple = v.canPlayType("application/vnd.apple.mpegurl") && typeof (v as any).webkitShowPlaybackTargetPicker === "function";
+    if (isHls(url) && !apple) {
+      import("hls.js").then(({ default: H }) => {
+        if (dead) return;
+        if (!H.isSupported()) return native();
+        const h = new H({ startPosition: startAt > 5 ? startAt : -1, capLevelToPlayerSize: true });
+        hls.current = h;
+        h.on(H.Events.MANIFEST_PARSED, () => {
+          const seen = new Set<number>();
+          setLevels(h.levels.map((l, index) => ({ index, height: l.height })).filter((l) => l.height && !seen.has(l.height) && seen.add(l.height)).sort((a, b) => b.height - a.height));
+        });
+        // Subtitle tracks arrive after the manifest. They are on by default, unless the learner switched them off before.
+        // (The playlist marks English as the default track; hls.js switches it on by itself.)
+        h.on(H.Events.SUBTITLE_TRACKS_UPDATED, () => {
+          setSubs(h.subtitleTracks.map((s, index) => ({ index, name: s.name || s.lang || `Track ${index + 1}` })));
+          if (prefs().subs === false) setTimeout(() => { h.subtitleTrack = -1; h.subtitleDisplay = false; }, 0);
+        });
+        h.on(H.Events.SUBTITLE_TRACK_SWITCH, (_, d) => setSub(d.id));
+        h.on(H.Events.LEVEL_SWITCHED, (_, d) => setAutoHeight(h.levels[d.level]?.height ?? 0));
+        h.on(H.Events.ERROR, (_, d) => { if (d.fatal) { if (d.type === H.ErrorTypes.NETWORK_ERROR) h.startLoad(); else if (d.type === H.ErrorTypes.MEDIA_ERROR) h.recoverMediaError(); else setErr("This video could not be played."); } });
+        h.loadSource(url); h.attachMedia(v);
+      });
+    } else native();
     setCanAir(typeof (v as any).webkitShowPlaybackTargetPicker === "function");
     setCanPip(!!document.pictureInPictureEnabled);
     return () => { dead = true; hls.current?.destroy(); hls.current = null; };

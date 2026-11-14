@@ -41,7 +41,7 @@ out = []
 for l in lines:
     if l.startswith("#EXT-X-STREAM-INF"):
         if not out or not any(x.startswith("#EXT-X-MEDIA:TYPE=SUBTITLES") for x in out):
-            out.append('#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",NAME="English",LANGUAGE="en",DEFAULT=NO,AUTOSELECT=YES,URI="subs/en.m3u8"')
+            out.append('#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",NAME="English",LANGUAGE="en",DEFAULT=YES,AUTOSELECT=YES,URI="subs/en.m3u8"')
         l += ',SUBTITLES="subs"'
     out.append(l)
 open(p, "w").write("\n".join(out) + "\n")

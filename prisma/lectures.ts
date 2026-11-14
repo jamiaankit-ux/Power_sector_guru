@@ -48,8 +48,8 @@ export const LECTURE_COURSES: LectureCourse[] = [
           {
             kind: "VIDEO",
             title: "Why grids need storage",
-            video: "/media/lectures/bess/ch01/master.m3u8",
-            seconds: 600,
+            video: "/media/lectures/bess/ch01/hls/master.m3u8",
+            seconds: 738,
             slides: ["/media/lectures/bess/ch01/BESS-Chapter-1-Why-grids-need-storage.pdf", "Chapter 1 slides (PDF)"],
             preview: true,
             notes:
