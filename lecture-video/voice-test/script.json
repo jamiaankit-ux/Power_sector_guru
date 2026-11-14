@@ -1,0 +1,8 @@
+{
+  "title": "Voice test",
+  "voice": "en-IN-PrabhatNeural",
+  "segments": [
+    {"id": "01", "say": "Namaste, and welcome to Power Sector Academy. In this lecture, we will see how artificial intelligence and machine learning are changing the way India plans, operates and trades electricity."},
+    {"id": "02", "say": "Think about a state load despatch centre on a hot afternoon in May. Demand is touching a new peak, solar output is falling as clouds move in, and the exchange price on the IEX day-ahead market has already crossed ten rupees per unit."}
+  ]
+}

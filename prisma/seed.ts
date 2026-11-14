@@ -2,6 +2,7 @@
    Videos point at public sample clips; replace them with your own lecture recordings in the admin panel. */
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { ensureLectureCourses } from "./lectures";
 
 const db = new PrismaClient();
 const V = [
@@ -357,6 +358,7 @@ async function main() {
   if (!reset && (await db.course.count()) > 0) {
     // Never wipe a live database: only make sure an admin exists.
     await ensureAdmin();
+    await ensureLectureCourses(db);
     console.log("Database already has content; skipping demo seed (use --reset to wipe and reseed).");
     return;
   }
@@ -453,6 +455,7 @@ async function main() {
     await db.dailyActivity.create({ data: { userId: learner.id, day: d, seconds: 900 + ((i * 731) % 2700) } });
   }
   await db.review.create({ data: { userId: learner.id, courseId: fundamentals, rating: 5, comment: "Clear explanations and the per-unit notes are excellent." } });
+  await ensureLectureCourses(db);
   console.log("Seeded.");
 }
 

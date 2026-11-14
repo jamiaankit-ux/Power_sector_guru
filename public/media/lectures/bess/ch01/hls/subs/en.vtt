@@ -1,0 +1,637 @@
+WEBVTT
+
+00:00:00.802 --> 00:00:04.273 line:85%
+Namaste, and welcome to Power Sector Academy.
+
+00:00:04.965 --> 00:00:08.656 line:85%
+This is the course on battery energy storage systems,
+
+00:00:08.883 --> 00:00:13.231 line:85%
+usually shortened to B E S S, or simply BESS.
+
+00:00:13.883 --> 00:00:16.866 line:85%
+Over the course we will go from the inside of a
+
+00:00:16.886 --> 00:00:21.054 line:85%
+single lithium-ion cell all the way out to a four-hundred-megawatt-hour
+
+00:00:21.074 --> 00:00:23.785 line:85%
+plant connected to the transmission grid.
+
+00:00:24.450 --> 00:00:28.115 line:85%
+In this first chapter, we answer a simple question:
+
+00:00:28.252 --> 00:00:31.448 line:85%
+why do power grids need storage at all?
+
+00:00:33.626 --> 00:00:36.789 line:85%
+The basic physics of an alternating-current grid
+
+00:00:36.809 --> 00:00:40.126 line:85%
+is that generation and consumption must balance
+
+00:00:40.146 --> 00:00:41.672 line:85%
+at every instant.
+
+00:00:42.338 --> 00:00:45.849 line:85%
+Any imbalance shows up immediately as a change
+
+00:00:45.869 --> 00:00:50.334 line:85%
+in frequency. For a century this balance was kept
+
+00:00:50.354 --> 00:00:54.006 line:85%
+by adjusting the output of large spinning generators.
+
+00:00:54.658 --> 00:00:58.001 line:85%
+Today a growing share of energy comes from solar
+
+00:00:58.021 --> 00:01:01.545 line:85%
+and wind, which cannot be turned up on demand.
+
+00:01:02.222 --> 00:01:03.838 line:85%
+Storage fills the gap.
+
+00:01:04.503 --> 00:01:08.233 line:85%
+A battery can absorb energy when there is too much
+
+00:01:08.253 --> 00:01:11.377 line:85%
+and give it back when there is too little,
+
+00:01:11.449 --> 00:01:14.728 line:85%
+and it can react within a fraction of a second.
+
+00:01:15.380 --> 00:01:18.336 line:85%
+In this chapter we define the two numbers that
+
+00:01:18.356 --> 00:01:22.048 line:85%
+describe any storage plant, power and energy;
+
+00:01:22.068 --> 00:01:25.424 line:85%
+we list the services it can sell; we see where
+
+00:01:25.444 --> 00:01:28.800 line:85%
+storage sits in the power system; and we compare
+
+00:01:28.820 --> 00:01:32.365 line:85%
+batteries with the other storage technologies.
+
+00:01:34.578 --> 00:01:37.560 line:85%
+The first thing to know about any storage plant
+
+00:01:37.580 --> 00:01:40.511 line:85%
+is that it has two sizes, not one.
+
+00:01:41.164 --> 00:01:44.920 line:85%
+The power rating, in megawatts, is how fast energy
+
+00:01:44.940 --> 00:01:46.736 line:85%
+can flow in or out.
+
+00:01:47.401 --> 00:01:50.603 line:85%
+In a battery plant it is set mostly by the power
+
+00:01:50.623 --> 00:01:53.257 line:85%
+conversion system, the inverters.
+
+00:01:53.883 --> 00:01:56.891 line:85%
+The energy capacity, in megawatt-hours,
+
+00:01:56.912 --> 00:01:59.417 line:85%
+is how much energy can be stored.
+
+00:02:00.082 --> 00:02:03.566 line:85%
+It is set mostly by the number of battery cells.
+
+00:02:04.205 --> 00:02:07.742 line:85%
+Divide energy by power and you get the duration,
+
+00:02:07.762 --> 00:02:12.008 line:85%
+in hours. On the left, a one-hundred-megawatt plant
+
+00:02:12.028 --> 00:02:15.100 line:85%
+with four hundred megawatt-hours can run at full
+
+00:02:15.120 --> 00:02:16.917 line:85%
+power for four hours.
+
+00:02:17.569 --> 00:02:20.538 line:85%
+On the right, a two-hundred-megawatt plant with
+
+00:02:20.558 --> 00:02:23.696 line:85%
+the same four hundred megawatt-hours can run for
+
+00:02:23.716 --> 00:02:28.708 line:85%
+only two hours. Same energy, very different products.
+
+00:02:29.360 --> 00:02:32.291 line:85%
+When someone says, a four-hundred-megawatt-hour
+
+00:02:32.311 --> 00:02:35.924 line:85%
+battery, always ask for the power as well.
+
+00:02:36.525 --> 00:02:39.752 line:85%
+In the industry the convention is to write both:
+
+00:02:39.811 --> 00:02:44.245 line:85%
+one hundred megawatts, slash, four hundred megawatt-hours.
+
+00:02:46.450 --> 00:02:49.587 line:85%
+This chart shows the problem that most grid-scale
+
+00:02:49.607 --> 00:02:51.854 line:85%
+batteries are built to solve.
+
+00:02:52.482 --> 00:02:55.851 line:85%
+The grey line is customer demand over a day.
+
+00:02:56.516 --> 00:03:00.452 line:85%
+The orange line is net load: demand minus solar
+
+00:03:00.472 --> 00:03:04.691 line:85%
+output. Net load is what the rest of the fleet,
+
+00:03:04.737 --> 00:03:08.209 line:85%
+the thermal and hydro plants, must supply.
+
+00:03:08.848 --> 00:03:13.068 line:85%
+With a lot of solar, net load collapses at midday
+
+00:03:13.088 --> 00:03:16.573 line:85%
+and then shoots up in the evening as the sun sets
+
+00:03:16.593 --> 00:03:18.157 line:85%
+and people come home.
+
+00:03:18.784 --> 00:03:21.856 line:85%
+The shape looks like a duck, hence the name.
+
+00:03:22.482 --> 00:03:26.057 line:85%
+The steep evening ramp is hard and expensive for
+
+00:03:26.077 --> 00:03:29.421 line:85%
+thermal plants to follow, and the midday dip may
+
+00:03:29.441 --> 00:03:31.534 line:85%
+force solar to be curtailed.
+
+00:03:32.186 --> 00:03:35.026 line:85%
+A battery charges during the midday surplus,
+
+00:03:35.124 --> 00:03:38.519 line:85%
+shown in green, and discharges into the evening
+
+00:03:38.539 --> 00:03:40.606 line:85%
+peak, shown in purple.
+
+00:03:41.245 --> 00:03:44.253 line:85%
+The blue dashed line is what the thermal fleet
+
+00:03:44.273 --> 00:03:47.849 line:85%
+now sees: a shallower valley and a smaller,
+
+00:03:47.869 --> 00:03:51.998 line:85%
+gentler peak. In India you can see this pattern
+
+00:03:52.018 --> 00:03:55.980 line:85%
+every day on the power exchanges: prices are lowest
+
+00:03:56.000 --> 00:03:59.188 line:85%
+around midday, when solar is plentiful,
+
+00:03:59.247 --> 00:04:02.577 line:85%
+and highest in the evening hours after sunset.
+
+00:04:03.242 --> 00:04:06.804 line:85%
+This single picture explains energy arbitrage,
+
+00:04:06.967 --> 00:04:10.747 line:85%
+solar firming, peak capacity and ramp reduction,
+
+00:04:10.845 --> 00:04:14.215 line:85%
+which are four of the most important revenue streams
+
+00:04:14.235 --> 00:04:15.897 line:85%
+for a BESS.
+
+00:04:18.098 --> 00:04:21.776 line:85%
+A battery is unusual because it can provide services
+
+00:04:21.796 --> 00:04:24.817 line:85%
+across a huge range of time scales.
+
+00:04:25.457 --> 00:04:27.950 line:85%
+Read the chart from top to bottom.
+
+00:04:28.602 --> 00:04:31.829 line:85%
+The fastest services act within milliseconds to
+
+00:04:31.849 --> 00:04:35.296 line:85%
+a couple of seconds: fast frequency response and
+
+00:04:35.316 --> 00:04:36.803 line:85%
+synthetic inertia.
+
+00:04:37.416 --> 00:04:41.314 line:85%
+Then primary frequency control, often called frequency
+
+00:04:41.334 --> 00:04:44.548 line:85%
+containment reserve, acts within seconds.
+
+00:04:45.187 --> 00:04:48.736 line:85%
+Secondary reserve, or automatic generation control
+
+00:04:48.756 --> 00:04:52.602 line:85%
+regulation, acts over tens of seconds to minutes.
+
+00:04:53.254 --> 00:04:56.507 line:85%
+Tertiary reserve and balancing act over minutes
+
+00:04:56.527 --> 00:05:00.528 line:85%
+to an hour. Energy arbitrage and peak shifting
+
+00:05:00.548 --> 00:05:05.591 line:85%
+act over hours. Capacity, or resource adequacy,
+
+00:05:05.664 --> 00:05:08.775 line:85%
+needs several hours of sustained output at the
+
+00:05:08.795 --> 00:05:13.195 line:85%
+system peak. The shaded band shows where lithium-ion
+
+00:05:13.215 --> 00:05:17.113 line:85%
+batteries are strong: from milliseconds up to about
+
+00:05:17.133 --> 00:05:18.761 line:85%
+four to eight hours.
+
+00:05:19.426 --> 00:05:22.641 line:85%
+Beyond that, the cost of the extra cells makes
+
+00:05:22.661 --> 00:05:26.765 line:85%
+other technologies, such as pumped hydro or hydrogen,
+
+00:05:26.785 --> 00:05:31.404 line:85%
+more attractive. In practice, operators stack several
+
+00:05:31.424 --> 00:05:34.715 line:85%
+services on the same plant: for example,
+
+00:05:34.736 --> 00:05:38.324 line:85%
+frequency reserve during some hours and arbitrage
+
+00:05:38.344 --> 00:05:42.408 line:85%
+during others. This is called revenue stacking,
+
+00:05:42.481 --> 00:05:45.097 line:85%
+and we model it in chapter eight.
+
+00:05:47.346 --> 00:05:50.766 line:85%
+Batteries can be placed anywhere along the electricity
+
+00:05:50.786 --> 00:05:54.143 line:85%
+supply chain, and the location decides what the
+
+00:05:54.163 --> 00:05:57.984 line:85%
+battery is for. At the generation side,
+
+00:05:58.082 --> 00:06:01.991 line:85%
+a battery is co-located with a solar or wind plant.
+
+00:06:02.669 --> 00:06:05.987 line:85%
+It captures energy that would otherwise be clipped
+
+00:06:06.007 --> 00:06:09.195 line:85%
+or curtailed and shifts it to later hours.
+
+00:06:09.847 --> 00:06:12.868 line:85%
+On the transmission grid, a standalone battery
+
+00:06:12.888 --> 00:06:15.355 line:85%
+participates in wholesale markets:
+
+00:06:15.375 --> 00:06:19.441 line:85%
+arbitrage, reserves, capacity, and relieving congested
+
+00:06:19.461 --> 00:06:22.881 line:85%
+lines. On the distribution network,
+
+00:06:23.017 --> 00:06:26.734 line:85%
+a battery at a substation or on a feeder can defer
+
+00:06:26.754 --> 00:06:30.522 line:85%
+an expensive network upgrade and support voltage.
+
+00:06:31.239 --> 00:06:34.389 line:85%
+Behind the meter at a commercial or industrial
+
+00:06:34.409 --> 00:06:37.739 line:85%
+site, a battery cuts the peak demand that sets
+
+00:06:37.759 --> 00:06:41.334 line:85%
+the customer's demand charge and provides backup.
+
+00:06:41.973 --> 00:06:45.716 line:85%
+At a home, it stores rooftop solar for the evening,
+
+00:06:45.839 --> 00:06:48.964 line:85%
+and many homes together can be aggregated into
+
+00:06:48.984 --> 00:06:50.729 line:85%
+a virtual power plant.
+
+00:06:51.393 --> 00:06:53.924 line:85%
+The red line is the customer's meter.
+
+00:06:54.589 --> 00:06:57.456 line:85%
+Everything to its left is front of the meter,
+
+00:06:57.476 --> 00:07:01.399 line:85%
+utility-scale. Everything to its right is behind
+
+00:07:01.419 --> 00:07:04.866 line:85%
+the meter. The technology is the same,
+
+00:07:04.886 --> 00:07:08.139 line:85%
+but the sizes, the standards and the economics
+
+00:07:08.159 --> 00:07:08.997 line:85%
+differ.
+
+00:07:11.242 --> 00:07:13.656 line:85%
+Let us make the services concrete.
+
+00:07:14.336 --> 00:07:17.460 line:85%
+The table lists each service, what the battery
+
+00:07:17.480 --> 00:07:21.003 line:85%
+physically does, how fast it must respond,
+
+00:07:21.063 --> 00:07:23.826 line:85%
+how long it must sustain the response,
+
+00:07:23.846 --> 00:07:26.596 line:85%
+and which battery parameter matters most.
+
+00:07:27.248 --> 00:07:28.697 line:85%
+Notice the pattern.
+
+00:07:29.323 --> 00:07:33.594 line:85%
+Fast services, at the top, need power and speed
+
+00:07:33.614 --> 00:07:35.514 line:85%
+but very little energy.
+
+00:07:36.192 --> 00:07:39.806 line:85%
+A battery that sells only primary frequency response
+
+00:07:39.826 --> 00:07:42.808 line:85%
+might have one hour of storage or less.
+
+00:07:43.460 --> 00:07:46.106 line:85%
+The energy services, in the middle,
+
+00:07:46.153 --> 00:07:49.574 line:85%
+need energy, a good round-trip efficiency,
+
+00:07:49.594 --> 00:07:53.014 line:85%
+and a battery that can tolerate a daily cycle without
+
+00:07:53.034 --> 00:07:54.663 line:85%
+wearing out too fast.
+
+00:07:55.328 --> 00:07:58.684 line:85%
+Capacity services need the plant to sustain its
+
+00:07:58.704 --> 00:08:01.751 line:85%
+output for several hours at the system peak;
+
+00:08:01.771 --> 00:08:05.423 line:85%
+the qualifying duration is set by the market rules,
+
+00:08:05.483 --> 00:08:08.684 line:85%
+which is why so many recent projects are four-hour
+
+00:08:08.704 --> 00:08:13.298 line:85%
+systems. At the bottom, voltage support and black
+
+00:08:13.318 --> 00:08:16.210 line:85%
+start depend mainly on the inverter,
+
+00:08:16.230 --> 00:08:17.640 line:85%
+not on the cells.
+
+00:08:18.279 --> 00:08:21.222 line:85%
+Black start, energising a dead grid,
+
+00:08:21.320 --> 00:08:24.934 line:85%
+requires a grid-forming inverter, which we cover
+
+00:08:24.954 --> 00:08:26.437 line:85%
+in chapter six.
+
+00:08:28.658 --> 00:08:31.214 line:85%
+This chart is called a Ragone plot,
+
+00:08:31.377 --> 00:08:34.514 line:85%
+after the engineer David Ragone who popularised
+
+00:08:34.534 --> 00:08:37.696 line:85%
+it for comparing energy storage devices.
+
+00:08:38.337 --> 00:08:41.409 line:85%
+The horizontal axis is specific energy,
+
+00:08:41.546 --> 00:08:45.662 line:85%
+in watt-hours per kilogram: how much energy a kilogram
+
+00:08:45.682 --> 00:08:47.195 line:85%
+of the device holds.
+
+00:08:47.847 --> 00:08:50.636 line:85%
+The vertical axis is specific power,
+
+00:08:50.669 --> 00:08:54.322 line:85%
+in watts per kilogram: how fast that kilogram can
+
+00:08:54.342 --> 00:08:58.226 line:85%
+deliver it. Both axes are logarithmic.
+
+00:08:58.930 --> 00:09:02.441 line:85%
+The dotted diagonals are lines of constant discharge
+
+00:09:02.461 --> 00:09:06.267 line:85%
+time, because time is energy divided by power.
+
+00:09:06.919 --> 00:09:10.959 line:85%
+Supercapacitors, top left, deliver huge power but
+
+00:09:10.979 --> 00:09:14.760 line:85%
+hold very little energy: they empty in seconds.
+
+00:09:15.412 --> 00:09:17.995 line:85%
+Nickel-metal hydride sits lower down,
+
+00:09:18.015 --> 00:09:20.894 line:85%
+with modest energy and modest power.
+
+00:09:21.546 --> 00:09:24.116 line:85%
+The lithium-ion family, on the right,
+
+00:09:24.136 --> 00:09:27.968 line:85%
+is the only group that is strong in both directions,
+
+00:09:28.015 --> 00:09:29.876 line:85%
+which is why it dominates.
+
+00:09:30.528 --> 00:09:33.832 line:85%
+Within the lithium family, nickel-manganese-cobalt
+
+00:09:33.852 --> 00:09:37.634 line:85%
+holds the most energy, iron-phosphate sits slightly
+
+00:09:37.654 --> 00:09:41.358 line:85%
+lower, and lithium titanate trades energy for very
+
+00:09:41.378 --> 00:09:43.497 line:85%
+high power and long life.
+
+00:09:44.162 --> 00:09:47.312 line:85%
+The vanadium flow battery looks poor here because
+
+00:09:47.332 --> 00:09:50.392 line:85%
+weight hardly matters for a stationary plant;
+
+00:09:50.412 --> 00:09:54.000 line:85%
+its strengths, cheap added energy and very long
+
+00:09:54.020 --> 00:09:57.350 line:85%
+life, do not show on a per-kilogram chart.
+
+00:09:58.015 --> 00:10:00.765 line:85%
+Always remember that for grid storage,
+
+00:10:00.901 --> 00:10:04.245 line:85%
+cost per kilowatt-hour and life matter more than
+
+00:10:04.265 --> 00:10:05.038 line:85%
+weight.
+
+00:10:07.290 --> 00:10:10.543 line:85%
+Here are the main storage technologies side by
+
+00:10:10.563 --> 00:10:14.823 line:85%
+side. The numbers are typical ranges and vary by
+
+00:10:14.843 --> 00:10:19.191 line:85%
+project. Lithium-ion with iron-phosphate chemistry
+
+00:10:19.211 --> 00:10:22.735 line:85%
+is now the default choice for anything from half
+
+00:10:22.755 --> 00:10:24.706 line:85%
+an hour to about eight hours.
+
+00:10:25.345 --> 00:10:28.469 line:85%
+Its alternating-current round-trip efficiency,
+
+00:10:28.593 --> 00:10:31.511 line:85%
+meaning what you get back at the grid connection
+
+00:10:31.531 --> 00:10:35.003 line:85%
+divided by what you put in, is typically eighty-five
+
+00:10:35.023 --> 00:10:38.636 line:85%
+to ninety percent, including auxiliary consumption.
+
+00:10:39.301 --> 00:10:43.199 line:85%
+Pumped hydro is still the largest storage technology
+
+00:10:43.219 --> 00:10:46.614 line:85%
+in the world by installed energy, and it lasts
+
+00:10:46.634 --> 00:10:50.364 line:85%
+a century, but it needs suitable geography and
+
+00:10:50.384 --> 00:10:51.910 line:85%
+takes years to build.
+
+00:10:52.575 --> 00:10:56.382 line:85%
+Compressed air and hydrogen offer long durations
+
+00:10:56.402 --> 00:10:58.211 line:85%
+but lower efficiency.
+
+00:10:58.863 --> 00:11:02.232 line:85%
+Flow batteries are interesting because power and
+
+00:11:02.252 --> 00:11:05.905 line:85%
+energy are sized independently, which we will see
+
+00:11:05.925 --> 00:11:07.258 line:85%
+in chapter three.
+
+00:11:07.897 --> 00:11:11.459 line:85%
+Flywheels and supercapacitors are for power-only
+
+00:11:11.479 --> 00:11:16.459 line:85%
+services. The rest of this course focuses on lithium-ion,
+
+00:11:16.531 --> 00:11:19.732 line:85%
+because that is what you will meet in almost every
+
+00:11:19.752 --> 00:11:23.985 line:85%
+BESS project today, but we will treat the alternatives
+
+00:11:24.005 --> 00:11:25.281 line:85%
+when they matter.
+
+00:11:27.490 --> 00:11:29.582 line:85%
+Let us recap chapter one.
+
+00:11:30.236 --> 00:11:33.179 line:85%
+A storage plant always has two sizes:
+
+00:11:33.277 --> 00:11:37.019 line:85%
+power in megawatts and energy in megawatt-hours,
+
+00:11:37.079 --> 00:11:38.927 line:85%
+so always quote both.
+
+00:11:39.617 --> 00:11:42.871 line:85%
+Batteries earn their keep by moving cheap midday
+
+00:11:42.891 --> 00:11:45.769 line:85%
+solar into the expensive evening peak.
+
+00:11:46.473 --> 00:11:49.287 line:85%
+One plant can stack several services,
+
+00:11:49.398 --> 00:11:51.414 line:85%
+from milliseconds to hours.
+
+00:11:52.079 --> 00:11:55.487 line:85%
+And lithium-ion with iron-phosphate chemistry is
+
+00:11:55.507 --> 00:11:59.030 line:85%
+the default choice for durations from half an hour
+
+00:11:59.050 --> 00:12:00.602 line:85%
+to about eight hours.
+
+00:12:01.254 --> 00:12:04.636 line:85%
+The slides for this chapter are available to download
+
+00:12:04.656 --> 00:12:06.401 line:85%
+just below this video.
+
+00:12:07.066 --> 00:12:10.074 line:85%
+Take the short quiz to check your understanding,
+
+00:12:10.249 --> 00:12:13.592 line:85%
+and in the next chapter, we go inside the cell
+
+00:12:13.612 --> 00:12:15.885 line:85%
+to look at its electrochemistry.
+
+00:12:16.563 --> 00:12:18.339 line:85%
+Thank you for watching.

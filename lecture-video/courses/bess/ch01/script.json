@@ -1,0 +1,1165 @@
+{
+ "course": "Battery Energy Storage Systems",
+ "module": "Chapter 1",
+ "title": "Why grids need storage",
+ "voice": "en-IN-PrabhatNeural",
+ "rate": "-3%",
+ "segments": [
+  {
+   "id": "00",
+   "card": "intro",
+   "illustration": "battery",
+   "kicker": "BATTERY ENERGY STORAGE SYSTEMS  ·  CHAPTER 1",
+   "heading": "Why grids need storage",
+   "sub": "Power and energy, grid services, where storage sits, and how batteries compare",
+   "say": "Namaste, and welcome to Power Sector Academy. This is the course on battery energy storage systems, usually shortened to B E S S, or simply BESS. Over the course we will go from the inside of a single lithium-ion cell all the way out to a four-hundred-megawatt-hour plant connected to the transmission grid. In this first chapter, we answer a simple question: why do power grids need storage at all?"
+  },
+  {
+   "id": "01",
+   "page": 1,
+   "say": "The basic physics of an alternating-current grid is that generation and consumption must balance at every instant. Any imbalance shows up immediately as a change in frequency. For a century this balance was kept by adjusting the output of large spinning generators. Today a growing share of energy comes from solar and wind, which cannot be turned up on demand. Storage fills the gap. A battery can absorb energy when there is too much and give it back when there is too little, and it can react within a fraction of a second. In this chapter we define the two numbers that describe any storage plant, power and energy; we list the services it can sell; we see where storage sits in the power system; and we compare batteries with the other storage technologies.",
+   "marks": [
+    {
+     "type": "underline",
+     "find": "Electricity must be produced at the instant it is used.",
+     "at": "balance at every instant",
+     "color": [
+      251,
+      191,
+      36
+     ]
+    },
+    {
+     "type": "underline",
+     "find": "responds in milliseconds",
+     "at": "fraction of a second",
+     "color": [
+      251,
+      191,
+      36
+     ]
+    },
+    {
+     "type": "reveal",
+     "find": "Power (MW) versus energy",
+     "line": true,
+     "at": "power and energy",
+     "fade": true
+    },
+    {
+     "type": "reveal",
+     "find": "The services a BESS sells",
+     "line": true,
+     "at": "list the services",
+     "fade": true
+    },
+    {
+     "type": "reveal",
+     "find": "Where storage sits",
+     "line": true,
+     "at": "where storage sits",
+     "fade": true
+    },
+    {
+     "type": "reveal",
+     "find": "How BESS compares",
+     "line": true,
+     "at": "compare batteries",
+     "fade": true
+    }
+   ]
+  },
+  {
+   "id": "02",
+   "page": 2,
+   "say": "The first thing to know about any storage plant is that it has two sizes, not one. The power rating, in megawatts, is how fast energy can flow in or out. In a battery plant it is set mostly by the power conversion system, the inverters. The energy capacity, in megawatt-hours, is how much energy can be stored. It is set mostly by the number of battery cells. Divide energy by power and you get the duration, in hours. On the left, a one-hundred-megawatt plant with four hundred megawatt-hours can run at full power for four hours. On the right, a two-hundred-megawatt plant with the same four hundred megawatt-hours can run for only two hours. Same energy, very different products. When someone says, a four-hundred-megawatt-hour battery, always ask for the power as well. In the industry the convention is to write both: one hundred megawatts, slash, four hundred megawatt-hours.",
+   "marks": [
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      152,
+      905,
+      207
+     ],
+     "at": "power rating",
+     "fade": true
+    },
+    {
+     "type": "underline",
+     "find": "Power rating (MW):",
+     "at": "how fast"
+    },
+    {
+     "type": "highlight",
+     "find": "mainly by the inverters",
+     "at": "inverters"
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      209,
+      905,
+      264
+     ],
+     "at": "energy capacity",
+     "fade": true
+    },
+    {
+     "type": "underline",
+     "find": "Energy capacity (MWh):",
+     "at": "how much energy"
+    },
+    {
+     "type": "highlight",
+     "find": "number of cells",
+     "at": "battery cells"
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      266,
+      905,
+      340
+     ],
+     "at": "divide energy",
+     "fade": true
+    },
+    {
+     "type": "zoom",
+     "pt": [
+      95,
+      128,
+      375,
+      392
+     ],
+     "at": "on the left",
+     "until": "on the right"
+    },
+    {
+     "type": "box",
+     "pt": [
+      174,
+      262,
+      301,
+      348
+     ],
+     "at": "four hundred",
+     "color": [
+      29,
+      78,
+      216
+     ]
+    },
+    {
+     "type": "arrow",
+     "pt": [
+      174,
+      247,
+      301,
+      257
+     ],
+     "from": "above",
+     "at": "four hours",
+     "len": 60
+    },
+    {
+     "type": "zoom",
+     "pt": [
+      385,
+      128,
+      690,
+      392
+     ],
+     "at": "on the right",
+     "until": "same energy"
+    },
+    {
+     "type": "box",
+     "pt": [
+      472,
+      176,
+      536,
+      348
+     ],
+     "at": "two-hundred-megawatt",
+     "color": [
+      234,
+      88,
+      12
+     ]
+    },
+    {
+     "type": "circle",
+     "pt": [
+      474,
+      160,
+      536,
+      171
+     ],
+     "at": "two hours"
+    },
+    {
+     "type": "note",
+     "pt": [
+      380,
+      360,
+      690,
+      392
+     ],
+     "side": "below",
+     "text": "Same 400 MWh: a 4-hour product vs a 2-hour product",
+     "at": "same energy",
+     "width_px": 520
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      698,
+      341,
+      906,
+      420
+     ],
+     "at": "always ask",
+     "fade": true
+    },
+    {
+     "type": "box",
+     "pt": [
+      708,
+      348,
+      898,
+      408
+     ],
+     "at": "convention",
+     "delay": 0.4
+    }
+   ]
+  },
+  {
+   "id": "03",
+   "page": 3,
+   "say": "This chart shows the problem that most grid-scale batteries are built to solve. The grey line is customer demand over a day. The orange line is net load: demand minus solar output. Net load is what the rest of the fleet, the thermal and hydro plants, must supply. With a lot of solar, net load collapses at midday and then shoots up in the evening as the sun sets and people come home. The shape looks like a duck, hence the name. The steep evening ramp is hard and expensive for thermal plants to follow, and the midday dip may force solar to be curtailed. A battery charges during the midday surplus, shown in green, and discharges into the evening peak, shown in purple. The blue dashed line is what the thermal fleet now sees: a shallower valley and a smaller, gentler peak. In India you can see this pattern every day on the power exchanges: prices are lowest around midday, when solar is plentiful, and highest in the evening hours after sunset. This single picture explains energy arbitrage, solar firming, peak capacity and ramp reduction, which are four of the most important revenue streams for a BESS.",
+   "marks": [
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      152,
+      905,
+      190
+     ],
+     "at": "grey line",
+     "fade": true
+    },
+    {
+     "type": "highlight",
+     "pt": [
+      140,
+      325,
+      180,
+      333
+     ],
+     "at": "demand over",
+     "color": [
+      215,
+      215,
+      225
+     ]
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      191,
+      905,
+      247
+     ],
+     "at": "orange line",
+     "fade": true
+    },
+    {
+     "type": "underline",
+     "pt": [
+      125,
+      333,
+      290,
+      340
+     ],
+     "at": "demand minus solar",
+     "color": [
+      234,
+      88,
+      12
+     ]
+    },
+    {
+     "type": "circle",
+     "pt": [
+      340,
+      290,
+      460,
+      382
+     ],
+     "at": "collapses at midday"
+    },
+    {
+     "type": "arrow",
+     "pt": [
+      505,
+      200,
+      530,
+      260
+     ],
+     "from": "right",
+     "at": "shoots up",
+     "len": 110
+    },
+    {
+     "type": "note",
+     "pt": [
+      380,
+      175,
+      470,
+      180
+     ],
+     "side": "above",
+     "text": "The 'duck curve'",
+     "at": "looks like a duck",
+     "width_px": 260
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      248,
+      905,
+      287
+     ],
+     "at": "shown in green",
+     "fade": true
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      330,
+      250,
+      470,
+      385
+     ],
+     "at": "shown in green",
+     "for": 3.2
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      288,
+      905,
+      343
+     ],
+     "at": "shown in purple",
+     "fade": true
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      500,
+      160,
+      628,
+      280
+     ],
+     "at": "shown in purple",
+     "for": 3.2
+    },
+    {
+     "type": "zoom",
+     "pt": [
+      440,
+      150,
+      660,
+      300
+     ],
+     "at": "blue dashed line",
+     "until": "in india"
+    },
+    {
+     "type": "note",
+     "pt": [
+      125,
+      140,
+      330,
+      150
+     ],
+     "side": "below",
+     "text": "India: power exchange prices are lowest at solar noon and highest after sunset",
+     "at": "in india",
+     "width_px": 470
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      705,
+      346,
+      905,
+      428
+     ],
+     "at": "single picture",
+     "fade": true
+    },
+    {
+     "type": "box",
+     "pt": [
+      710,
+      350,
+      898,
+      424
+     ],
+     "at": "four of the most",
+     "color": [
+      29,
+      78,
+      216
+     ]
+    }
+   ]
+  },
+  {
+   "id": "04",
+   "page": 4,
+   "say": "A battery is unusual because it can provide services across a huge range of time scales. Read the chart from top to bottom. The fastest services act within milliseconds to a couple of seconds: fast frequency response and synthetic inertia. Then primary frequency control, often called frequency containment reserve, acts within seconds. Secondary reserve, or automatic generation control regulation, acts over tens of seconds to minutes. Tertiary reserve and balancing act over minutes to an hour. Energy arbitrage and peak shifting act over hours. Capacity, or resource adequacy, needs several hours of sustained output at the system peak. The shaded band shows where lithium-ion batteries are strong: from milliseconds up to about four to eight hours. Beyond that, the cost of the extra cells makes other technologies, such as pumped hydro or hydrogen, more attractive. In practice, operators stack several services on the same plant: for example, frequency reserve during some hours and arbitrage during others. This is called revenue stacking, and we model it in chapter eight.",
+   "marks": [
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      248,
+      905,
+      305
+     ],
+     "at": "fastest services",
+     "fade": true
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      80,
+      165,
+      372,
+      184
+     ],
+     "at": "fast frequency response"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      220,
+      193,
+      424,
+      213
+     ],
+     "at": "primary frequency control"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      270,
+      222,
+      486,
+      241
+     ],
+     "at": "secondary reserve"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      358,
+      251,
+      512,
+      271
+     ],
+     "at": "tertiary reserve"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      375,
+      280,
+      537,
+      299
+     ],
+     "at": "energy arbitrage"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      395,
+      309,
+      554,
+      329
+     ],
+     "at": "capacity, or resource",
+     "until": "shaded band"
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      191,
+      905,
+      247
+     ],
+     "at": "shaded band",
+     "fade": true
+    },
+    {
+     "type": "box",
+     "pt": [
+      259,
+      141,
+      536,
+      390
+     ],
+     "at": "shaded band",
+     "color": [
+      29,
+      78,
+      216
+     ],
+     "pad": 3
+    },
+    {
+     "type": "highlight",
+     "pt": [
+      285,
+      143,
+      540,
+      156
+     ],
+     "at": "four to eight"
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      306,
+      905,
+      362
+     ],
+     "at": "beyond that",
+     "fade": true
+    },
+    {
+     "type": "arrow",
+     "pt": [
+      614,
+      368,
+      657,
+      386
+     ],
+     "from": "above",
+     "at": "pumped hydro",
+     "len": 70
+    },
+    {
+     "type": "note",
+     "pt": [
+      300,
+      445,
+      600,
+      450
+     ],
+     "side": "below",
+     "text": "Revenue stacking: several services from one plant",
+     "at": "revenue stacking",
+     "width_px": 560
+    }
+   ]
+  },
+  {
+   "id": "05",
+   "page": 5,
+   "say": "Batteries can be placed anywhere along the electricity supply chain, and the location decides what the battery is for. At the generation side, a battery is co-located with a solar or wind plant. It captures energy that would otherwise be clipped or curtailed and shifts it to later hours. On the transmission grid, a standalone battery participates in wholesale markets: arbitrage, reserves, capacity, and relieving congested lines. On the distribution network, a battery at a substation or on a feeder can defer an expensive network upgrade and support voltage. Behind the meter at a commercial or industrial site, a battery cuts the peak demand that sets the customer's demand charge and provides backup. At a home, it stores rooftop solar for the evening, and many homes together can be aggregated into a virtual power plant. The red line is the customer's meter. Everything to its left is front of the meter, utility-scale. Everything to its right is behind the meter. The technology is the same, but the sizes, the standards and the economics differ.",
+   "marks": [
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      152,
+      905,
+      190
+     ],
+     "at": "supply chain",
+     "fade": true
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      191,
+      905,
+      229
+     ],
+     "at": "what the battery is for",
+     "fade": true
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      80,
+      152,
+      194,
+      340
+     ],
+     "at": "generation side"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      197,
+      152,
+      311,
+      340
+     ],
+     "at": "transmission grid"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      315,
+      152,
+      429,
+      340
+     ],
+     "at": "distribution network"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      433,
+      152,
+      546,
+      340
+     ],
+     "at": "behind the meter at"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      550,
+      152,
+      663,
+      340
+     ],
+     "at": "at a home",
+     "until": "red line"
+    },
+    {
+     "type": "note",
+     "pt": [
+      550,
+      364,
+      663,
+      366
+     ],
+     "side": "below",
+     "text": "Many homes together = a virtual power plant",
+     "at": "virtual power plant",
+     "width_px": 300
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      700,
+      230,
+      905,
+      305
+     ],
+     "at": "red line",
+     "fade": true
+    },
+    {
+     "type": "box",
+     "pt": [
+      427,
+      146,
+      435,
+      352
+     ],
+     "at": "red line",
+     "pad": 4
+    },
+    {
+     "type": "underline",
+     "pt": [
+      200,
+      351,
+      353,
+      360
+     ],
+     "at": "front of the meter",
+     "color": [
+      29,
+      78,
+      216
+     ]
+    },
+    {
+     "type": "underline",
+     "pt": [
+      473,
+      351,
+      622,
+      360
+     ],
+     "at": "behind the meter",
+     "color": [
+      29,
+      78,
+      216
+     ]
+    }
+   ]
+  },
+  {
+   "id": "06",
+   "page": 6,
+   "say": "Let us make the services concrete. The table lists each service, what the battery physically does, how fast it must respond, how long it must sustain the response, and which battery parameter matters most. Notice the pattern. Fast services, at the top, need power and speed but very little energy. A battery that sells only primary frequency response might have one hour of storage or less. The energy services, in the middle, need energy, a good round-trip efficiency, and a battery that can tolerate a daily cycle without wearing out too fast. Capacity services need the plant to sustain its output for several hours at the system peak; the qualifying duration is set by the market rules, which is why so many recent projects are four-hour systems. At the bottom, voltage support and black start depend mainly on the inverter, not on the cells. Black start, energising a dead grid, requires a grid-forming inverter, which we cover in chapter six.",
+   "marks": [
+    {
+     "type": "highlight",
+     "pt": [
+      67,
+      126,
+      885,
+      146
+     ],
+     "at": "lists each service",
+     "color": [
+      255,
+      236,
+      150
+     ]
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      67,
+      147,
+      885,
+      222
+     ],
+     "at": "fast services"
+    },
+    {
+     "type": "circle",
+     "find": "< 0.5 s",
+     "at": "speed"
+    },
+    {
+     "type": "underline",
+     "find": "Power, response time",
+     "at": "very little energy"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      67,
+      260,
+      885,
+      336
+     ],
+     "at": "energy services"
+    },
+    {
+     "type": "highlight",
+     "find": "Energy, RTE, degradation",
+     "at": "round-trip efficiency"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      67,
+      299,
+      885,
+      336
+     ],
+     "at": "capacity services"
+    },
+    {
+     "type": "circle",
+     "find": "2–8 h (rules vary)",
+     "at": "market rules"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      67,
+      375,
+      885,
+      412
+     ],
+     "at": "at the bottom",
+     "until": "chapter six"
+    },
+    {
+     "type": "highlight",
+     "find": "Inverter rating, grid",
+     "at": "on the inverter"
+    },
+    {
+     "type": "note",
+     "pt": [
+      271,
+      404,
+      482,
+      410
+     ],
+     "side": "below",
+     "text": "Black start needs a grid-forming inverter (Chapter 6)",
+     "at": "grid-forming",
+     "width_px": 520
+    }
+   ]
+  },
+  {
+   "id": "07",
+   "page": 7,
+   "say": "This chart is called a Ragone plot, after the engineer David Ragone who popularised it for comparing energy storage devices. The horizontal axis is specific energy, in watt-hours per kilogram: how much energy a kilogram of the device holds. The vertical axis is specific power, in watts per kilogram: how fast that kilogram can deliver it. Both axes are logarithmic. The dotted diagonals are lines of constant discharge time, because time is energy divided by power. Supercapacitors, top left, deliver huge power but hold very little energy: they empty in seconds. Nickel-metal hydride sits lower down, with modest energy and modest power. The lithium-ion family, on the right, is the only group that is strong in both directions, which is why it dominates. Within the lithium family, nickel-manganese-cobalt holds the most energy, iron-phosphate sits slightly lower, and lithium titanate trades energy for very high power and long life. The vanadium flow battery looks poor here because weight hardly matters for a stationary plant; its strengths, cheap added energy and very long life, do not show on a per-kilogram chart. Always remember that for grid storage, cost per kilowatt-hour and life matter more than weight.",
+   "marks": [
+    {
+     "type": "reveal",
+     "pt": [
+      574,
+      154,
+      905,
+      192
+     ],
+     "at": "horizontal axis",
+     "fade": true
+    },
+    {
+     "type": "underline",
+     "pt": [
+      238,
+      429,
+      377,
+      440
+     ],
+     "at": "horizontal axis"
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      574,
+      196,
+      905,
+      216
+     ],
+     "at": "vertical axis",
+     "fade": true
+    },
+    {
+     "type": "box",
+     "pt": [
+      76,
+      226,
+      89,
+      322
+     ],
+     "at": "vertical axis",
+     "pad": 4
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      574,
+      218,
+      905,
+      255
+     ],
+     "at": "dotted diagonals",
+     "fade": true
+    },
+    {
+     "type": "arrow",
+     "pt": [
+      196,
+      270,
+      204,
+      278
+     ],
+     "from": "below",
+     "at": "dotted diagonals",
+     "len": 70
+    },
+    {
+     "type": "circle",
+     "pt": [
+      155,
+      161,
+      247,
+      225
+     ],
+     "at": "supercapacitors"
+    },
+    {
+     "type": "circle",
+     "pt": [
+      334,
+      285,
+      361,
+      321
+     ],
+     "at": "nickel-metal hydride"
+    },
+    {
+     "type": "reveal",
+     "pt": [
+      574,
+      258,
+      905,
+      298
+     ],
+     "at": "lithium-ion family",
+     "fade": true
+    },
+    {
+     "type": "circle",
+     "pt": [
+      378,
+      200,
+      484,
+      287
+     ],
+     "at": "lithium-ion family",
+     "color": [
+      22,
+      163,
+      74
+     ]
+    },
+    {
+     "type": "zoom",
+     "pt": [
+      362,
+      190,
+      545,
+      300
+     ],
+     "at": "within the lithium",
+     "until": "vanadium flow"
+    },
+    {
+     "type": "box",
+     "pt": [
+      445,
+      225,
+      482,
+      275
+     ],
+     "at": "nickel-manganese-cobalt",
+     "color": [
+      234,
+      88,
+      12
+     ],
+     "pad": 3
+    },
+    {
+     "type": "box",
+     "pt": [
+      413,
+      234,
+      457,
+      285
+     ],
+     "at": "iron-phosphate",
+     "color": [
+      22,
+      163,
+      74
+     ],
+     "pad": 3
+    },
+    {
+     "type": "box",
+     "pt": [
+      380,
+      203,
+      407,
+      247
+     ],
+     "at": "lithium titanate",
+     "color": [
+      124,
+      58,
+      237
+     ],
+     "pad": 3
+    },
+    {
+     "type": "circle",
+     "pt": [
+      261,
+      337,
+      334,
+      393
+     ],
+     "at": "vanadium flow"
+    },
+    {
+     "type": "note",
+     "pt": [
+      261,
+      337,
+      334,
+      393
+     ],
+     "side": "right",
+     "text": "For grid storage, cost per kWh and life matter more than weight",
+     "at": "always remember",
+     "width_px": 380
+    }
+   ]
+  },
+  {
+   "id": "08",
+   "page": 8,
+   "say": "Here are the main storage technologies side by side. The numbers are typical ranges and vary by project. Lithium-ion with iron-phosphate chemistry is now the default choice for anything from half an hour to about eight hours. Its alternating-current round-trip efficiency, meaning what you get back at the grid connection divided by what you put in, is typically eighty-five to ninety percent, including auxiliary consumption. Pumped hydro is still the largest storage technology in the world by installed energy, and it lasts a century, but it needs suitable geography and takes years to build. Compressed air and hydrogen offer long durations but lower efficiency. Flow batteries are interesting because power and energy are sized independently, which we will see in chapter three. Flywheels and supercapacitors are for power-only services. The rest of this course focuses on lithium-ion, because that is what you will meet in almost every BESS project today, but we will treat the alternatives when they matter.",
+   "marks": [
+    {
+     "type": "spotlight",
+     "pt": [
+      67,
+      163,
+      885,
+      197
+     ],
+     "at": "lithium-ion with"
+    },
+    {
+     "type": "highlight",
+     "find": "0.5–8 h",
+     "at": "half an hour"
+    },
+    {
+     "type": "circle",
+     "find": "85–90 % (AC)",
+     "at": "eighty-five"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      67,
+      200,
+      885,
+      235
+     ],
+     "at": "pumped hydro"
+    },
+    {
+     "type": "highlight",
+     "find": "50–100 yr",
+     "at": "century"
+    },
+    {
+     "type": "underline",
+     "find": "Needs geography; long",
+     "at": "geography"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      67,
+      238,
+      885,
+      260
+     ],
+     "at": "compressed air"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      67,
+      322,
+      885,
+      358
+     ],
+     "at": "hydrogen offer"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      67,
+      262,
+      885,
+      298
+     ],
+     "at": "flow batteries"
+    },
+    {
+     "type": "highlight",
+     "find": "Power and energy",
+     "at": "sized independently"
+    },
+    {
+     "type": "spotlight",
+     "pt": [
+      67,
+      360,
+      885,
+      383
+     ],
+     "at": "flywheels",
+     "until": "rest of this course"
+    },
+    {
+     "type": "box",
+     "pt": [
+      67,
+      163,
+      885,
+      197
+     ],
+     "at": "focuses on lithium-ion",
+     "color": [
+      29,
+      78,
+      216
+     ],
+     "pad": 4
+    }
+   ]
+  },
+  {
+   "id": "09",
+   "card": "summary",
+   "heading": "Chapter 1: key takeaways",
+   "bullets": [
+    {
+     "text": "Every storage plant has two sizes: quote it as power / energy, e.g. 100 MW / 400 MWh",
+     "at": "two sizes"
+    },
+    {
+     "text": "Batteries move cheap midday solar into the costly evening peak",
+     "at": "midday solar"
+    },
+    {
+     "text": "One plant can stack services, from milliseconds to hours",
+     "at": "stack several"
+    },
+    {
+     "text": "Lithium-ion (LFP) is the default choice for 0.5 to 8 hours",
+     "at": "default choice"
+    }
+   ],
+   "footer": "Slides for this chapter: download below the video   ·   Next: Chapter 2, Electrochemistry of a cell",
+   "footer_at": "slides for this chapter",
+   "say": "Let us recap chapter one. A storage plant always has two sizes: power in megawatts and energy in megawatt-hours, so always quote both. Batteries earn their keep by moving cheap midday solar into the expensive evening peak. One plant can stack several services, from milliseconds to hours. And lithium-ion with iron-phosphate chemistry is the default choice for durations from half an hour to about eight hours. The slides for this chapter are available to download just below this video. Take the short quiz to check your understanding, and in the next chapter, we go inside the cell to look at its electrochemistry. Thank you for watching.",
+   "illustration": "battery"
+  }
+ ]
+}

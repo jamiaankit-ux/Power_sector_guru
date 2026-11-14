@@ -12,6 +12,11 @@ type YTPlayer = { getCurrentTime(): number; getDuration(): number; getPlayerStat
 declare global { interface Window { YT?: { Player: new (el: HTMLElement, o: object) => YTPlayer }; onYouTubeIframeAPIReady?: () => void; __onGCastApiAvailable?: (ok: boolean) => void; cast?: any; chrome?: any } }
 
 const ytId = (url: string) => url.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)?.[1];
+/** Quality names learners understand: UHD 4K, HD, Medium, Low. */
+export const qualityName = (h: number, short = false) => {
+  const [name, p] = h >= 2000 ? ["UHD 4K", 2160] : h >= 1000 ? ["HD", 1080] : h >= 700 ? ["Medium", 720] : h >= 400 ? ["Low", h] : ["Data saver", h];
+  return short ? name : `${name} · ${p}p`;
+};
 const isHls = (url: string) => /\.m3u8(\?|$)/.test(url);
 const clock = (s: number) => { if (!isFinite(s)) return "0:00"; const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = Math.floor(s % 60); return `${h ? h + ":" + String(m).padStart(2, "0") : m}:${String(x).padStart(2, "0")}`; };
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
@@ -91,22 +96,42 @@ function Player({ lessonId, url, title, startAt, watermark, api }: Props & Api) 
     const v = video.current; if (!v) return;
     setErr(""); setLevels([]); setSubs([]);
     let dead = false;
-    if (isHls(url) && !v.canPlayType("application/vnd.apple.mpegurl")) {
+    const native = () => {
+      v.src = url;
+      // Safari / iPhone play HLS natively: list its subtitle tracks for the same menu.
+      v.textTracks.onaddtrack = () => {
+        const tracks = Array.from(v.textTracks).filter((t) => t.kind === "subtitles" || t.kind === "captions");
+        setSubs(tracks.map((t, index) => ({ index, name: t.label || t.language || `Track ${index + 1}` })));
+        const want = tracks.length && prefs().subs !== false ? 0 : -1;
+        tracks.forEach((t, i) => { t.mode = i === want ? "showing" : "disabled"; });
+        setSub(want);
+      };
+    };
+    // Apple devices keep native HLS (it is what AirPlay needs). Everywhere else hls.js gives the quality and subtitle menus,
+    // even where the browser could play HLS by itself (newer Chrome), because the built-in player hides those choices.
+    const apple = v.canPlayType("application/vnd.apple.mpegurl") && typeof (v as any).webkitShowPlaybackTargetPicker === "function";
+    if (isHls(url) && !apple) {
       import("hls.js").then(({ default: H }) => {
-        if (dead || !H.isSupported()) return;
+        if (dead) return;
+        if (!H.isSupported()) return native();
         const h = new H({ startPosition: startAt > 5 ? startAt : -1, capLevelToPlayerSize: true });
         hls.current = h;
         h.on(H.Events.MANIFEST_PARSED, () => {
           const seen = new Set<number>();
           setLevels(h.levels.map((l, index) => ({ index, height: l.height })).filter((l) => l.height && !seen.has(l.height) && seen.add(l.height)).sort((a, b) => b.height - a.height));
-          setSubs(h.subtitleTracks.map((s, index) => ({ index, name: s.name || s.lang || `Track ${index + 1}` })));
-          h.subtitleDisplay = false;
         });
+        // Subtitle tracks arrive after the manifest. They are on by default, unless the learner switched them off before.
+        // (The playlist marks English as the default track; hls.js switches it on by itself.)
+        h.on(H.Events.SUBTITLE_TRACKS_UPDATED, () => {
+          setSubs(h.subtitleTracks.map((s, index) => ({ index, name: s.name || s.lang || `Track ${index + 1}` })));
+          if (prefs().subs === false) setTimeout(() => { h.subtitleTrack = -1; h.subtitleDisplay = false; }, 0);
+        });
+        h.on(H.Events.SUBTITLE_TRACK_SWITCH, (_, d) => setSub(d.id));
         h.on(H.Events.LEVEL_SWITCHED, (_, d) => setAutoHeight(h.levels[d.level]?.height ?? 0));
         h.on(H.Events.ERROR, (_, d) => { if (d.fatal) { if (d.type === H.ErrorTypes.NETWORK_ERROR) h.startLoad(); else if (d.type === H.ErrorTypes.MEDIA_ERROR) h.recoverMediaError(); else setErr("This video could not be played."); } });
         h.loadSource(url); h.attachMedia(v);
       });
-    } else v.src = url;
+    } else native();
     setCanAir(typeof (v as any).webkitShowPlaybackTargetPicker === "function");
     setCanPip(!!document.pictureInPictureEnabled);
     return () => { dead = true; hls.current?.destroy(); hls.current = null; };
@@ -121,6 +146,7 @@ function Player({ lessonId, url, title, startAt, watermark, api }: Props & Api) 
       if (typeof p.rate === "number") { v.playbackRate = p.rate; setRate(p.rate); }
     } catch {}
   }, []);
+  const prefs = () => { try { return JSON.parse(localStorage.getItem("psa-player") || "{}"); } catch { return {}; } };
   const remember = (patch: object) => { try { localStorage.setItem("psa-player", JSON.stringify({ ...JSON.parse(localStorage.getItem("psa-player") || "{}"), ...patch })); } catch {} };
 
   // Chromecast (Chrome on computers and Android). Not available inside the store apps' web view.
@@ -176,7 +202,12 @@ function Player({ lessonId, url, title, startAt, watermark, api }: Props & Api) 
   const setVolume = (x: number) => { const v = video.current; if (!v) return; v.volume = x; v.muted = x === 0; setVol(x); setMuted(x === 0); remember({ vol: x }); };
   const setSpeed = (r: number) => { const v = video.current; if (v) v.playbackRate = r; setRate(r); remember({ rate: r }); setMenu(null); };
   const setQuality = (i: number) => { if (hls.current) hls.current.currentLevel = i; setLevel(i); setMenu(null); };
-  const setSubtitle = (i: number) => { const h = hls.current; if (h) { h.subtitleTrack = i; h.subtitleDisplay = i >= 0; } setSub(i); setMenu(null); };
+  const setSubtitle = (i: number) => {
+    const h = hls.current, v = video.current;
+    if (h) { h.subtitleTrack = i; h.subtitleDisplay = i >= 0; }
+    else if (v) Array.from(v.textTracks).filter((t) => t.kind === "subtitles" || t.kind === "captions").forEach((t, k) => { t.mode = k === i ? "showing" : "disabled"; });
+    setSub(i); remember({ subs: i >= 0 }); setMenu(null);
+  };
   const fullscreen = useCallback(() => {
     const b = box.current as any, v = video.current as any;
     if (document.fullscreenElement) document.exitFullscreen();
@@ -227,7 +258,7 @@ function Player({ lessonId, url, title, startAt, watermark, api }: Props & Api) 
     toggle(); wake();
   };
 
-  const q = level === -1 ? `Auto${autoHeight ? ` (${autoHeight}p)` : ""}` : `${levels.find((l) => l.index === level)?.height}p`;
+  const q = level === -1 ? `Auto${autoHeight ? ` (${qualityName(autoHeight, true)})` : ""}` : qualityName(levels.find((l) => l.index === level)?.height ?? 0, true);
   const btn = "grid h-9 w-9 place-items-center rounded-lg text-white/90 hover:bg-white/15 hover:text-white";
   const row = "flex w-full items-center justify-between gap-6 rounded-lg px-3 py-2 text-left text-sm hover:bg-white/10";
 
@@ -292,7 +323,7 @@ function Player({ lessonId, url, title, startAt, watermark, api }: Props & Api) 
               {menu === "speed" && SPEEDS.map((r) => <button key={r} className={`${row} ${rate === r ? "text-volt-400" : ""}`} onClick={() => setSpeed(r)}>{r === 1 ? "Normal" : `${r}×`}</button>)}
               {menu === "quality" && <>
                 <button className={`${row} ${level === -1 ? "text-volt-400" : ""}`} onClick={() => setQuality(-1)}>Auto <span className="text-xs text-white/50">saves data</span></button>
-                {levels.map((l) => <button key={l.index} className={`${row} ${level === l.index ? "text-volt-400" : ""}`} onClick={() => setQuality(l.index)}>{l.height}p{l.height >= 1080 ? " HD" : ""}</button>)}
+                {levels.map((l) => <button key={l.index} className={`${row} ${level === l.index ? "text-volt-400" : ""}`} onClick={() => setQuality(l.index)}>{qualityName(l.height)}</button>)}
               </>}
               {menu === "subs" && <>
                 <button className={`${row} ${sub === -1 ? "text-volt-400" : ""}`} onClick={() => setSubtitle(-1)}>Off</button>
