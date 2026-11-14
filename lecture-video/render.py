@@ -334,6 +334,7 @@ class Painter:
             return ease_out((t - at) / 0.6)
 
         sp, x = seg.spec, 150 * K
+        textw = 0.56 if sp.get("illustration") else 0.72
         if sp.get("illustration") == "battery":
             self.battery(d, W * 0.80, H * 0.47, 330 * K, t)
         a = appear(0.15)
@@ -347,7 +348,7 @@ class Painter:
             y = H * 0.30
             for at, text, f, col, _ in rows:
                 a = appear(at)
-                for line in wrap(d, text, f, W * 0.72):
+                for line in wrap(d, text, f, W * textw):
                     if a > 0:
                         d.text((x, y + (1 - a) * 40 * K), line, font=f, fill=col + (int(255 * a),))
                     y += f.size * 1.18
@@ -357,23 +358,25 @@ class Painter:
                 d.text((x, H * 0.80), sp.get("footer", "Power Sector Academy  ·  Making you ready for AI-enabled Power Sector"), font=font("m", 27 * K), fill=(148, 163, 184, int(255 * a)))
         else:  # summary / outro with bullets that appear on cue
             a = appear(0.15)
-            d.text((x, H * 0.27 + (1 - a) * 30 * K), sp.get("heading", "Key takeaways"), font=font("x", 70 * K), fill=(255, 255, 255, int(255 * a)))
-            y = H * 0.40
+            if a > 0:
+                d.text((x, H * 0.27 + (1 - a) * 30 * K), sp.get("heading", "Key takeaways"), font=font("x", 70 * K), fill=(255, 255, 255, int(255 * a)))
+            y = H * 0.385
             for k, b in enumerate(sp.get("bullets", [])):
                 at = LEAD + self.L._word_time(seg, b["at"], 0)[0] if "at" in b else 0.6 + k * 0.4
                 a = appear(at)
-                f = font("m", 40 * K)
-                lines = wrap(d, b["text"], f, W * 0.66)
+                f = font("m", 37 * K)
+                lines = wrap(d, b["text"], f, W * (textw - 0.08))
                 if a > 0:
                     cx = x + 18 * K
                     d.ellipse((cx - 11 * K, y + 14 * K, cx + 11 * K, y + 36 * K), fill=VOLT + (int(255 * a),))
                     for i, line in enumerate(lines):
                         d.text((x + 56 * K + (1 - a) * 40 * K, y + i * f.size * 1.25), line, font=f, fill=(241, 245, 249, int(255 * a)))
-                y += len(lines) * f.size * 1.25 + 26 * K
+                y += len(lines) * f.size * 1.25 + 20 * K
             if sp.get("footer"):
                 fa = sp.get("footer_at", 1.2)
                 a = appear(LEAD + self.L._word_time(seg, fa, 0)[0] if isinstance(fa, str) else fa)
-                d.text((x, H * 0.84), sp["footer"], font=font("s", 30 * K), fill=(147, 197, 253, int(255 * a)))
+                if a > 0:
+                    d.text((x, H * 0.885), sp["footer"], font=font("s", 30 * K), fill=(147, 197, 253, int(255 * a)))
         return img
 
     def battery(self, d, cx, cy, size, t):
@@ -540,7 +543,10 @@ class Painter:
             tz = min(mk.spec.get("max", 2.2), self.W / (x1 - x0 + 2 * pad), (self.H - 96 * self.K) / (y1 - y0 + 2 * pad))
             tz = max(tz, 1.05)
             tx, ty = (x0 + x1) / 2, (y0 + y1) / 2
-            if t < mk.until:
+            nxt = [o for o in seg.marks if o is not mk and o.kind == "zoom" and 0 <= o.t - mk.until <= 1.2]
+            if nxt:  # the next zoom follows straight on: pan across instead of zooming out and in again
+                e = ease((t - mk.t) / mk.dur) if t < nxt[0].t + nxt[0].dur else 0
+            elif t < mk.until:
                 e = ease((t - mk.t) / mk.dur)
             else:
                 e = 1 - ease((t - mk.until) / 0.8)

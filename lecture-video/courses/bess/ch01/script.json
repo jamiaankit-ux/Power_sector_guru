@@ -217,10 +217,10 @@
     {
      "type": "reveal",
      "pt": [
-      700,
-      343,
-      905,
-      412
+      698,
+      341,
+      906,
+      420
      ],
      "at": "always ask",
      "fade": true
@@ -660,9 +660,9 @@
      "type": "note",
      "pt": [
       550,
-      336,
+      364,
       663,
-      340
+      366
      ],
      "side": "below",
      "text": "Many homes together = a virtual power plant",
@@ -806,7 +806,7 @@
     },
     {
      "type": "highlight",
-     "find": "Inverter rating, grid-",
+     "find": "Inverter rating, grid",
      "at": "on the inverter"
     },
     {
@@ -886,10 +886,10 @@
     {
      "type": "arrow",
      "pt": [
-      300,
-      333,
-      312,
-      343
+      196,
+      270,
+      204,
+      278
      ],
      "from": "below",
      "at": "dotted diagonals",
@@ -1158,7 +1158,8 @@
    ],
    "footer": "Slides for this chapter: download below the video   ·   Next: Chapter 2, Electrochemistry of a cell",
    "footer_at": "slides for this chapter",
-   "say": "Let us recap chapter one. A storage plant always has two sizes: power in megawatts and energy in megawatt-hours, so always quote both. Batteries earn their keep by moving cheap midday solar into the expensive evening peak. One plant can stack several services, from milliseconds to hours. And lithium-ion with iron-phosphate chemistry is the default choice for durations from half an hour to about eight hours. The slides for this chapter are available to download just below this video. Take the short quiz to check your understanding, and in the next chapter, we go inside the cell to look at its electrochemistry. Thank you for watching."
+   "say": "Let us recap chapter one. A storage plant always has two sizes: power in megawatts and energy in megawatt-hours, so always quote both. Batteries earn their keep by moving cheap midday solar into the expensive evening peak. One plant can stack several services, from milliseconds to hours. And lithium-ion with iron-phosphate chemistry is the default choice for durations from half an hour to about eight hours. The slides for this chapter are available to download just below this video. Take the short quiz to check your understanding, and in the next chapter, we go inside the cell to look at its electrochemistry. Thank you for watching.",
+   "illustration": "battery"
   }
  ]
 }
